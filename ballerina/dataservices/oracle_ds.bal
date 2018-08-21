@@ -108,5 +108,25 @@ service<http:Service> dataservice bind { port: 9090 } {
         caller->respond(res) but { error e => log:printError("Error in sending response", err = e) };
     }
 
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/employee_swap/{id1}/{id2}"
+    }
+    employeeSwapByIds(endpoint caller, http:Request req, int id1, int id2) {
+        transaction {
+            table<Employee> ts1 = check empDB->select("SELECT * FROM Employee WHERE id = ?", Employee, id1);
+            table<Employee> ts2 = check empDB->select("SELECT * FROM Employee WHERE id = ?", Employee, id2);
+            Employee e1 = check <Employee> ts1.getNext();
+            Employee e2 = check <Employee> ts2.getNext();
+            int tmp = e1.id;
+            e1.id = e2.id;
+            e2.id = tmp;
+            _ = empDB->update("UPDATE Employee SET name = ?, age = ? WHERE id = ?", e1.name, e1.age, e1.id);
+            _ = empDB->update("UPDATE Employee SET name = ?, age = ? WHERE id = ?", e2.name, e2.age, e2.id);
+        }
+        http:Response res = new;
+        caller->respond(res) but { error e => log:printError("Error in sending response", err = e) };
+    }
+
 }
 

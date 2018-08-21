@@ -1,7 +1,8 @@
-curl -X POST -d "{'id':14, 'name':'Will Smith','age':55}" http://localhost:9090/dataservice/employee
-curl -X POST -d "{'id':15, 'name':'Johnny Depp','age':45}" http://localhost:9090/dataservice/employee
-curl http://localhost:9090/dataservice/employee
-curl http://localhost:9090/dataservice/employee/15
-curl -X PUT -d "{'id': 14, 'name':'Sunil Perera','age':66}" http://localhost:9090/dataservice/employee
-curl -X DELETE http://localhost:9090/dataservice/employee/14
+curl -X POST -d "{'id':1, 'name':'Will Smith','age':55}" http://localhost:9090/data/employee
+curl -X POST -d "{'id':2, 'name':'Johnny Depp','age':45}" http://localhost:9090/data/employee
+curl -X GET http://localhost:9090/data/employee
+curl -X GET http://localhost:9090/data/employee/2
+curl -X PUT -d "{'id': 1, 'name':'Sunil Perera','age':66}" http://localhost:9090/data/employee
+curl -X GET http://localhost:9090/data/employee_swap/1/2
+curl -X DELETE http://localhost:9090/data/employee/1
 
