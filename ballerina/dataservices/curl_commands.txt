@@ -1,0 +1,7 @@
+curl -X POST -d "{'id':14, 'name':'Will Smith','age':55}" http://localhost:9090/dataservice/employee
+curl -X POST -d "{'id':15, 'name':'Johnny Depp','age':45}" http://localhost:9090/dataservice/employee
+curl http://localhost:9090/dataservice/employee
+curl http://localhost:9090/dataservice/employee/15
+curl -X PUT -d "{'id': 14, 'name':'Sunil Perera','age':66}" http://localhost:9090/dataservice/employee
+curl -X DELETE http://localhost:9090/dataservice/employee/14
+
