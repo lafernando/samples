@@ -2,7 +2,6 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/jdbc;
 import ballerina/sql;
-import ballerina/io;
 
 type Employee record {
     int id;
@@ -16,6 +15,9 @@ endpoint jdbc:Client empDB {
     password: "tiger"
 };
 
+@http:ServiceConfig { 
+    basePath: "/data" 
+}
 service<http:Service> dataservice bind { port: 9090 } {
 
     @http:ResourceConfig {

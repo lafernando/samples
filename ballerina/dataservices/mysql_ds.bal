@@ -15,6 +15,9 @@ endpoint jdbc:Client empDB {
     password: "root"
 };
 
+@http:ServiceConfig { 
+    basePath: "/data" 
+}
 service<http:Service> dataservice bind { port: 9090 } {
 
     @http:ResourceConfig {
