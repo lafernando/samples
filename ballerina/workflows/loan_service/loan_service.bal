@@ -4,45 +4,77 @@ import ballerina/io;
 import ballerina/system;
 import ballerina/math;
 import ballerina/runtime;
+import ballerina/h2;
 
-type ApplicationInfo object {
+type ApplicationInfo record {
     string name;
     string ssn;
-    float loan_amount;
+    int loan_amount;
     string zipcode;
-    float income;
+    int income;
     boolean married;
 };
 
-type ApplicationEntry object {
+type ApplicationEntry record {
     string state = "RISK_ASSESMENT";
     string comment = "";
     string appid;
     ApplicationInfo appinfo;
 };
 
-type ApplicationReview object {
+type ApplicationReview record {
     string appid;
     string result;
     string comment;
 };
 
+type DBEntry record {
+    string appid;
+    string data;
+};
+
 channel<json> reviewChannel;
 
-map<ApplicationEntry> applications;
+endpoint h2:Client appdb {
+    path: "./app-data",
+    name: "app-data",
+    username: "admin",
+    password: "admin"
+};
 
-service<http:Service> LoanService bind { port: 9090 } {    
+http:AuthProvider basicAuthProvider = {
+   scheme:"basic",
+   authStoreProvider:"config"
+};
+
+endpoint http:SecureListener secureLoanServiceEp {
+   port:9090,
+   authProviders:[basicAuthProvider],
+   secureSocket: {
+       keyStore: {
+           path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+           password: "ballerina"
+       }
+   }
+};
+
+@http:ServiceConfig {
+   basePath:"/LoanService"
+}
+service<http:Service> LoanService bind secureLoanServiceEp {    
 
     @http:ResourceConfig {
         body: "appinfo",
         methods: ["POST"],
         path: "/application"
     }
+    @interruptible
     start_application (endpoint caller, http:Request request, ApplicationInfo appinfo) {
         string appid = generateApplicationID();
         _ = caller->respond({"ApplicationID" : appid}) but { 
                             error e => log:printError("Error sending response", err = e) };
         processApplication(appid, appinfo);
+        
     }
 
     @http:ResourceConfig {
@@ -50,8 +82,7 @@ service<http:Service> LoanService bind { port: 9090 } {
         path: "/application/{applicationID}"
     }
     get_application (endpoint caller, http:Request request, string applicationID) {
-        ApplicationEntry? entry = applications[applicationID];
-        _ = caller->respond(check <json> entry) but { 
+        _ = caller->respond(getApplicationEntry(applicationID)) but { 
                             error e => log:printError("Error sending response", err = e) };
     }
 
@@ -60,14 +91,17 @@ service<http:Service> LoanService bind { port: 9090 } {
         path: "/application/"
     }
     get_all_applications (endpoint caller, http:Request request, string applicationID) {
-        _ = caller->respond(check <json> applications) but { 
+        _ = caller->respond(getAllApplicationEntries()) but { 
                             error e => log:printError("Error sending response", err = e) };
     }
     
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/application_review/",
-        body: "applicationReview"
+        body: "applicationReview",
+        authConfig:{
+            scopes:["underwriter"]
+        }
     }
     add_application_review (endpoint caller, http:Request request, ApplicationReview applicationReview) {
         json message = check <json> applicationReview;
@@ -77,14 +111,51 @@ service<http:Service> LoanService bind { port: 9090 } {
         message -> reviewChannel, applicationReview.appid;            
     }
 
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/init_db/"
+    }
+    initDB(endpoint caller, http:Request request) {
+        _ = appdb->update("CREATE TABLE APPLICATION_ENTRY (appid VARCHAR(100), data CLOB, PRIMARY KEY (appid))");
+        _ = caller->respond("OK") but { error e => log:printError("Error sending response", err = e) };
+    }
+
+}
+
+function storeApplicationEntry(ApplicationEntry entry) {
+    json content = check <json> entry;
+    _ = appdb->update("MERGE INTO APPLICATION_ENTRY KEY(appid) VALUES (?,?)", entry.appid, 
+                     content.toString());
+}
+
+function getApplicationEntry(string appid) returns json {
+    table<DBEntry> data = check appdb->select("SELECT * from APPLICATION_ENTRY WHERE appid=?", DBEntry, appid);
+    return generateDBResultJSON(data);
+}
+
+function getAllApplicationEntries() returns json {
+    table<DBEntry> data = check appdb->select("SELECT * from APPLICATION_ENTRY", DBEntry);
+    return generateDBResultJSON(data);
+}
+
+function generateDBResultJSON(table<DBEntry> data) returns json {
+    json result = [];
+    int i = 0;
+    foreach entry in data {
+        io:println(entry);
+        io:StringReader reader = new io:StringReader(entry.data);
+        result[i] = check reader.readJson();
+        i++;
+    }
+    return result;
 }
 
 function generateApplicationID() returns string {
     return system:uuid();
 }
 
-function lookupCreditScore(string ssn) returns float {
-    return math:random() * 850.0;
+function lookupCreditScore(string ssn) returns int {
+    return <int> (math:random() * 850.0);
 }
 
 function approveApplication(ApplicationEntry entry, string reason) {
@@ -104,6 +175,7 @@ function processReviewApplication(ApplicationEntry entry) {
     json message;
     // Wait for review decision. These channel receives are used to wait for external 
     // triggers to be sent to the process to continue the execution
+    runtime:checkpoint();
     message <- reviewChannel, entry.appid;
     string result = check <string> message.result;
     string comment = check <string> message.comment;
@@ -117,14 +189,14 @@ function processReviewApplication(ApplicationEntry entry) {
 
 function processApplication(string appid, ApplicationInfo appinfo) {
     // Create and store the application 
-    ApplicationEntry entry = new;
+    ApplicationEntry entry = {};
     entry.appid = appid;
     entry.appinfo = appinfo;
-    applications[appid] = entry;
+    storeApplicationEntry(entry);
     io:println("New Application: ", check <json> appinfo, " ApplicationID: ", appid);
 
     // Check credit score for risk analysis
-    float credit_score = lookupCreditScore(appinfo.ssn);
+    int credit_score = lookupCreditScore(appinfo.ssn);
     io:println("Credit Score: ", credit_score);
    
     if (credit_score >= 690) {
