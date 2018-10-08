@@ -161,17 +161,20 @@ function lookupCreditScore(string ssn) returns int {
 function approveApplication(ApplicationEntry entry, string reason) {
     entry.state = "APPROVED";
     entry.comment = reason;
+    storeApplicationEntry(entry);
     io:println("Loan Application Approved: ", entry.appid, ", Comment: ", entry.comment);
 }
 
 function denyApplication(ApplicationEntry entry, string reason) {
     entry.state = "DENIED";
     entry.comment = reason;
+    storeApplicationEntry(entry);
     io:println("Loan Application Denied: ", entry.appid, ", Comment: ", entry.comment);
 }
 
 function processReviewApplication(ApplicationEntry entry) {
     entry.state = "IN-REVIEW";
+    storeApplicationEntry(entry);
     json message;
     // Wait for review decision. These channel receives are used to wait for external 
     // triggers to be sent to the process to continue the execution
