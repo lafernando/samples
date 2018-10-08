@@ -1,0 +1,8 @@
+["b7a.users"]
+
+["b7a.users.jack"]
+password="jack"
+
+["b7a.users.tom"]
+password="tom"
+scopes="underwriter"
