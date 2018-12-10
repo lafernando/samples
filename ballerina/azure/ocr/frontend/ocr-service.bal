@@ -4,6 +4,13 @@ import ballerina/http;
 import ballerina/config;
 import wso2/azureblob;
 import wso2/azurequeue;
+import ballerinax/kubernetes;
+
+@kubernetes:Service {
+    serviceType: "LoadBalancer",
+    port: 80
+}
+listener http:Listener ocrslistener = new (8080);
 
 azureblob:Configuration blobConfig = {
     accessKey: config:getAsString("ACCESS_KEY"),
@@ -18,10 +25,20 @@ azurequeue:Configuration queueConfig = {
 azureblob:Client blobClient = new(blobConfig);
 azurequeue:Client queueClient = new(queueConfig);
 
+@kubernetes:Deployment {
+    image: "lafernando/ocrsx5",
+    push: true,
+    username: "$env{username}",
+    password: "$env{password}",
+    imagePullPolicy: "Always"
+}
+@kubernetes:ConfigMap{
+    ballerinaConf: "ballerina.conf"
+}
 @http:ServiceConfig {
     basePath:"/"
 }
-service OCRService on new http:Listener(8080) {
+service OCRService on ocrslistener {
 
     @http:ResourceConfig {
         path:"/{email}"

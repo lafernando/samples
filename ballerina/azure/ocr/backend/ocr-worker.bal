@@ -7,15 +7,16 @@ import wso2/azureblob;
 import wso2/azurequeue;
 import wso2/azurecv;
 import wso2/gmail;
-
-azureblob:Configuration blobConfig = {
-    accessKey: config:getAsString("ACCESS_KEY"),
-    account: config:getAsString("ACCOUNT")
-};
+import ballerinax/kubernetes;
 
 azurequeue:Configuration queueConfig = {
     accessKey: config:getAsString("ACCESS_KEY2"),
     account: config:getAsString("ACCOUNT2")
+};
+
+azureblob:Configuration blobConfig = {
+    accessKey: config:getAsString("ACCESS_KEY"),
+    account: config:getAsString("ACCOUNT")
 };
 
 azurecv:Configuration cvConfig = {
@@ -38,6 +39,18 @@ azureblob:Client blobClient = new(blobConfig);
 azurequeue:Client queueClient = new(queueConfig);
 azurecv:Client cvClient = new(cvConfig);
 gmail:Client gmailClient = new(gmailConfig);
+
+@kubernetes:Deployment {
+    image: "lafernando/ocrworkerx3",
+    push: true,
+    username: "$env{username}",
+    password: "$env{password}",
+    imagePullPolicy: "Always"
+}
+@kubernetes:ConfigMap{
+    ballerinaConf: "ballerina.conf"
+}
+service ocrx on new http:Listener(8080) { }
 
 public function main() {
     io:println("Worker Starting...");
@@ -128,3 +141,4 @@ public function jobDone(string jobId, string messageId, string popReceipt) {
         }
     }
 }
+
