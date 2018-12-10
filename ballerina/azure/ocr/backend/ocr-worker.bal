@@ -5,6 +5,7 @@ import ballerina/http;
 import ballerina/config;
 import wso2/azureblob;
 import wso2/azurequeue;
+import wso2/azurecv;
 
 azureblob:Configuration blobConfig = {
     accessKey: config:getAsString("ACCESS_KEY"),
@@ -16,8 +17,13 @@ azurequeue:Configuration queueConfig = {
     account: config:getAsString("ACCOUNT2")
 };
 
+azurecv:Configuration cvConfig = {
+    key: config:getAsString("KEY")
+};
+
 azureblob:Client blobClient = new(blobConfig);
 azurequeue:Client queueClient = new(queueConfig);
+azurecv:Client cvClient = new(cvConfig);
 
 public function main() {
     io:println("Worker Starting...");
@@ -30,18 +36,23 @@ public function main() {
             // if no jobs, sleep a bit
             runtime:sleep(2000);
         } else {
-            processJob(result[1], result[2]);
+            processJob(result[0], result[1], result[2]);
             jobDone(result[0], result[3], result[4]);
             io:println("Job Done: " + result[0]);
         }
     }
 }
 
-public function processJob(byte[] data, string email) {
+public function processJob(string jobId, byte[] data, string email) {
     io:println("Job Process:- ");
     io:println("DATA LENGTH: ", data.length());
     io:println("EMAIL: ", email);
-    
+    var result = cvClient->ocr(untaint data);
+    if (result is string) {
+        io:println("TEXT: " + result);
+    } else {
+        io:println("Error in OCR, jobId: ", jobId, " error: ", result);
+    }
 }
 
 public function retrieveJob() returns (string, byte[], string, string, string)|error|() {
