@@ -6,6 +6,7 @@ import ballerina/config;
 import wso2/azureblob;
 import wso2/azurequeue;
 import wso2/azurecv;
+import wso2/gmail;
 
 azureblob:Configuration blobConfig = {
     accessKey: config:getAsString("ACCESS_KEY"),
@@ -21,9 +22,22 @@ azurecv:Configuration cvConfig = {
     key: config:getAsString("KEY")
 };
 
+gmail:GmailConfiguration gmailConfig = {
+    clientConfig: {
+        auth: {
+            scheme: http:OAUTH2,
+            accessToken: config:getAsString("GMAIL_ACCESSTOKEN"),
+            clientId: config:getAsString("GMAIL_CLIENTID"),
+            clientSecret: config:getAsString("GMAIL_CLIENTSECRET"),
+            refreshToken: config:getAsString("GMAIL_REFRESHTOKEN")
+        }
+    }
+};
+
 azureblob:Client blobClient = new(blobConfig);
 azurequeue:Client queueClient = new(queueConfig);
 azurecv:Client cvClient = new(cvConfig);
+gmail:Client gmailClient = new(gmailConfig);
 
 public function main() {
     io:println("Worker Starting...");
@@ -49,9 +63,25 @@ public function processJob(string jobId, byte[] data, string email) {
     io:println("EMAIL: ", email);
     var result = cvClient->ocr(untaint data);
     if (result is string) {
-        io:println("TEXT: " + result);
+        io:println("\nTEXT:-\n\n " + result, "\n");
+        sendEmail(untaint jobId, untaint email, result);
     } else {
         io:println("Error in OCR, jobId: ", jobId, " error: ", result);
+    }
+}
+
+public function sendEmail(string jobId, string email, string text) {
+    gmail:MessageRequest messageRequest = {};
+    messageRequest.recipient = email;
+    messageRequest.sender = "lafernando@gmail.com";
+    messageRequest.subject = "OCR Result for Job: " + jobId;
+    messageRequest.messageBody = text;
+    messageRequest.contentType = gmail:TEXT_PLAIN;
+    var sendMessageResponse = gmailClient->sendMessage("me", messageRequest);
+    if (sendMessageResponse is (string, string)) {
+        io:println("Email sent, jobId: ", jobId);
+    } else {
+        io:println("Error sending email, jobId: ", jobId, " error: ", sendMessageResponse);
     }
 }
 
