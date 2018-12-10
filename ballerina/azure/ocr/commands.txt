@@ -1,0 +1,3 @@
+curl -H "Content-Type: text/plain" -d "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Atomist_quote_from_Democritus.png/338px-Atomist_quote_from_Democritus.png" http://localhost:8080/lafernando@gmail.com
+
+curl --data-binary "@/home/laf/Desktop/input.jpeg" http://localhost:8080/lafernando@gmail.com
