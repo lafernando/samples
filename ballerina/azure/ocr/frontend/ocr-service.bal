@@ -26,7 +26,7 @@ azureblob:Client blobClient = new(blobConfig);
 azurequeue:Client queueClient = new(queueConfig);
 
 @kubernetes:Deployment {
-    image: "lafernando/ocrsxx",
+    image: "$env{username}/ocrsxxx",
     push: true,
     username: "$env{username}",
     password: "$env{password}",
