@@ -32,6 +32,9 @@ azurequeue:Client queueClient = new(queueConfig);
     password: "$env{password}",
     imagePullPolicy: "Always"
 }
+@kubernetes:ConfigMap{
+    ballerinaConf: "ballerina.conf"
+}
 service OCRService on ocrslistener {
 
     @http:ResourceConfig {
