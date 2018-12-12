@@ -35,6 +35,9 @@ azurequeue:Client queueClient = new(queueConfig);
 @kubernetes:ConfigMap{
     ballerinaConf: "ballerina.conf"
 }
+@http:ServiceConfig {
+    basePath: "/"
+}
 service OCRService on ocrslistener {
 
     @http:ResourceConfig {
