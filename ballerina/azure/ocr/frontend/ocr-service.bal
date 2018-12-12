@@ -26,17 +26,11 @@ azureblob:Client blobClient = new(blobConfig);
 azurequeue:Client queueClient = new(queueConfig);
 
 @kubernetes:Deployment {
-    image: "lafernando/ocrsx5",
+    image: "lafernando/ocrsxx",
     push: true,
     username: "$env{username}",
     password: "$env{password}",
     imagePullPolicy: "Always"
-}
-@kubernetes:ConfigMap{
-    ballerinaConf: "ballerina.conf"
-}
-@http:ServiceConfig {
-    basePath:"/"
 }
 service OCRService on ocrslistener {
 

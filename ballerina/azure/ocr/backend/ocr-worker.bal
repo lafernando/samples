@@ -41,7 +41,7 @@ azurecv:Client cvClient = new(cvConfig);
 gmail:Client gmailClient = new(gmailConfig);
 
 @kubernetes:Deployment {
-    image: "lafernando/ocrworkerx3",
+    image: "lafernando/ocrworkerxx",
     push: true,
     username: "$env{username}",
     password: "$env{password}",
