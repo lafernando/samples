@@ -10,17 +10,18 @@ import wso2/gmail;
 import ballerinax/kubernetes;
 
 azurequeue:Configuration queueConfig = {
-    accessKey: config:getAsString("ACCESS_KEY2"),
-    account: config:getAsString("ACCOUNT2")
+    accessKey: config:getAsString("STORAGE_ACCESS_KEY"),
+    account: config:getAsString("STORAGE_ACCOUNT")
 };
 
 azureblob:Configuration blobConfig = {
-    accessKey: config:getAsString("ACCESS_KEY"),
-    account: config:getAsString("ACCOUNT")
+    accessKey: config:getAsString("STORAGE_ACCESS_KEY"),
+    account: config:getAsString("STORAGE_ACCOUNT")
 };
 
 azurecv:Configuration cvConfig = {
-    key: config:getAsString("KEY")
+    key: config:getAsString("CV_KEY"),
+    region: "eastus"
 };
 
 gmail:GmailConfiguration gmailConfig = {
@@ -41,20 +42,19 @@ azurecv:Client cvClient = new(cvConfig);
 gmail:Client gmailClient = new(gmailConfig);
 
 @kubernetes:Deployment {
-    image: "lafernando/ocrworkerxx",
+    image: "$env{username}/ocrworkerxx",
     push: true,
     username: "$env{username}",
     password: "$env{password}",
     imagePullPolicy: "Always"
 }
-@kubernetes:ConfigMap{
+@kubernetes:ConfigMap {
     ballerinaConf: "ballerina.conf"
 }
 service ocrx on new http:Listener(8080) { }
 
 public function main() {
     io:println("Worker Starting...");
-
     while (true) {
         var result = retrieveJob();
         if (result is error) {
@@ -99,7 +99,7 @@ public function sendEmail(string jobId, string email, string text) {
 }
 
 public function retrieveJob() returns (string, byte[], string, string, string)|error|() {
-    var result = queueClient->getMessages("queue1");
+    var result = queueClient->getMessages("ocrqueue");
     if (result is azurequeue:GetMessagesResult) {
         if (result.messages.length() > 0) {
             string msg = result.messages[0].messageText;
@@ -108,7 +108,7 @@ public function retrieveJob() returns (string, byte[], string, string, string)|e
             string[] msgItems = msg.split(":");
             string jobId = msgItems[0];
             string email = msgItems[1];
-            var br = blobClient->getBlob("ctn1", jobId);
+            var br = blobClient->getBlob("ocrctn", jobId);
             if (br is azureblob:BlobResult) {
                 var data = br.data;
                 if (data is byte[]) {
@@ -132,13 +132,12 @@ public function retrieveJob() returns (string, byte[], string, string, string)|e
 }
 
 public function jobDone(string jobId, string messageId, string popReceipt) {
-    var qr = queueClient->deleteMessage("queue1", messageId, popReceipt);
+    var qr = queueClient->deleteMessage("ocrqueue", messageId, popReceipt);
     if (qr is ()) {
         io:println("Job Message Deleted: ", jobId);
-        var br = blobClient->deleteBlob("ctn1", jobId);
+        var br = blobClient->deleteBlob("ocrctn", jobId);
         if (br is ()) {
             io:println("Job Data Deleted: ", jobId);
         }
     }
 }
-

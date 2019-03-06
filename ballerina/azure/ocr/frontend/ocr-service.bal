@@ -10,16 +10,16 @@ import ballerinax/kubernetes;
     serviceType: "LoadBalancer",
     port: 80
 }
-listener http:Listener ocrslistener = new (8080);
+listener http:Listener ocrslistener = new(8080);
 
 azureblob:Configuration blobConfig = {
-    accessKey: config:getAsString("ACCESS_KEY"),
-    account: config:getAsString("ACCOUNT")
+    accessKey: config:getAsString("STORAGE_ACCESS_KEY"),
+    account: config:getAsString("STORAGE_ACCOUNT")
 };
 
 azurequeue:Configuration queueConfig = {
-    accessKey: config:getAsString("ACCESS_KEY2"),
-    account: config:getAsString("ACCOUNT2")
+    accessKey: config:getAsString("STORAGE_ACCESS_KEY"),
+    account: config:getAsString("STORAGE_ACCOUNT")
 };
 
 azureblob:Client blobClient = new(blobConfig);
@@ -32,7 +32,7 @@ azurequeue:Client queueClient = new(queueConfig);
     password: "$env{password}",
     imagePullPolicy: "Always"
 }
-@kubernetes:ConfigMap{
+@kubernetes:ConfigMap {
     ballerinaConf: "ballerina.conf"
 }
 @http:ServiceConfig {
@@ -47,12 +47,12 @@ service OCRService on ocrslistener {
         var result = req.getBinaryPayload();
         if (result is byte[]) {
             string jobId = system:uuid();
-            var pbr = blobClient->putBlob("ctn1", jobId, result);
+            var pbr = blobClient->putBlob("ocrctn", jobId, result);
             if (pbr is error) {
                 _ = caller->respond("Error, Reason: " + pbr.reason() + 
                                 " Detail: " + <string> pbr.detail()["message"]);
             } else {
-                var pmr = queueClient->putMessage("queue1", jobId + ":" + email);
+                var pmr = queueClient->putMessage("ocrqueue", jobId + ":" + email);
                 if (pmr is error) {
                     _ = caller->respond("Error, Reason: " + pmr.reason() + 
                                         " Detail: " + <string> pmr.detail()["message"]);
