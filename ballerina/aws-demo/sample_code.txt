@@ -1,0 +1,79 @@
+@kubernetes:ConfigMap {
+    ballerinaConf: "ballerina.conf"
+}
+
+    dockerHost: "tcp://192.168.99.100:2376", 
+    dockerCertPath: "/home/laf/.minikube/certs"
+
+curl --data-binary "@/home/laf/Desktop/input.jpeg" http://192.168.99.100:31317/process
+
+arn:aws:iam::908363916138:role/lambda-role
+
+aws lambda create-function --function-name uuid --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.uuid --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --timeout 10 --memory-size 1024
+
+aws lambda update-function-configuration --function-name uuid --layers arn:aws:lambda:us-east-2:141896495686:layer:ballerina-0-990-3:4
+
+aws lambda update-function-code --function-name uuid --zip-file fileb://aws-ballerina-lambda-functions.zip
+
+============================================================
+
+import ballerina/http;
+import ballerina/config;
+import wso2/amazonrekn;
+import ballerinax/kubernetes;
+
+amazonrekn:Configuration config = {
+    accessKey: config:getAsString("AK"),
+    secretKey: config:getAsString("SK")
+};
+
+@kubernetes:Service {
+    serviceType: "NodePort"
+}
+listener http:Listener lx = new(8080);
+
+amazonrekn:Client reknClient = new(config);
+
+@kubernetes:ConfigMap {
+    ballerinaConf: "ballerina.conf"
+}
+@kubernetes:Deployment {
+    dockerHost:"tcp://192.168.99.100:2376", 
+    dockerCertPath:"/home/laf/.minikube/certs"    
+}
+@http:ServiceConfig {
+    basePath: "/"
+}
+service myservice on lx {
+
+    @http:ResourceConfig {
+        path: "process"
+    }
+    resource function doit(http:Caller caller, http:Request request) {
+        var input = request.getBinaryPayload();
+        if (input is byte[]) {
+            var result = reknClient->detectText(input);
+            if (result is string) {
+                _ = caller->respond(result);
+            }
+        }
+    }
+
+}
+
+========================
+
+import ballerinax/awslambda;
+import ballerina/system;
+
+# Generate UUID.
+#
+# + input - input data
+# + return - UUID string
+@awslambda:Function
+public function uuid(awslambda:Context ctx, json input) returns json|error {
+    return "XXX:" + system:uuid();
+}
+
+=========================
+
