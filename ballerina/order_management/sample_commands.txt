@@ -1,0 +1,5 @@
+curl -X POST -d "{'items':[{'id':115353, 'quantity':1}, {'id':352123, 'quantity':2}]}" http://localhost:8080/ordermgt/order
+
+curl -X PUT -d "{'items':[{'id':115353, 'quantity':5}, {'id':352123, 'quantity':5}]}" http://localhost:8080/ordermgt/order/8a201fc2-7c24-46eb-ac4d-c6a2580d6493
+
+curl http://localhost:8080/ordermgt/order/8a201fc2-7c24-46eb-ac4d-c6a2580d6493
