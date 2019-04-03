@@ -9,10 +9,10 @@ kafka:ConsumerConfig conf = {
     topics: ["orders"]
 };
 
-listener kafka:SimpleConsumer consumer = new(conf);
+listener kafka:SimpleConsumer cs = new(conf);
 
-service orderProcessor on consumer {
-    resource function onMessage(kafka:SimpleConsumer simpleConsumer, kafka:ConsumerRecord[] records) {
+service orderProcessor on cs {
+    resource function onMessage(kafka:SimpleConsumer cons, kafka:ConsumerRecord[] records) {
         foreach var rec in records {
             string val = encoding:byteArrayToString(rec.value, encoding = "utf-8");
             var entry = parseJson(val);

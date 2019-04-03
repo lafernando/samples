@@ -22,7 +22,7 @@ service orderMgt on httpListener {
     resource function addOrder(http:Caller caller, http:Request req, json info) returns error? {
         string id = createOrder(info);
         info.__id = id;
-        var result = kprod->send(info.toString().toByteArray("UTF-8"), "orders");
+        check kprod->send(info.toString().toByteArray("UTF-8"), "orders");
         check caller->respond("Order Added: " + untaint id);
     }
 
