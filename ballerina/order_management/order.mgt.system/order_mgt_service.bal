@@ -15,6 +15,18 @@ listener http:Listener httpListener = new(8080);
 service orderMgt on httpListener {
 
     @http:ResourceConfig {
+        methods: ["POST"],
+        path: "/order",
+        body: "info"
+    }
+    resource function addOrder(http:Caller caller, http:Request req, json info) returns error? {
+        string id = createOrder(info);
+        info.__id = id;
+        var result = kprod->send(info.toString().toByteArray("UTF-8"), "orders");
+        check caller->respond("Order Added: " + untaint id);
+    }
+
+    @http:ResourceConfig {
         methods: ["GET"],
         path: "/order/{orderId}"
     }
@@ -35,23 +47,11 @@ service orderMgt on httpListener {
     }
 
     @http:ResourceConfig {
-        methods: ["POST"],
-        path: "/order",
-        body: "info"
-    }
-    resource function addOrder(http:Caller caller, http:Request req, json info) returns error? {
-        string id = createOrder(info);
-        info.__id = id;
-        var result = kprod->send(info.toString().toByteArray("UTF-8"), "orders");
-        check caller->respond("Order Added: " + untaint id);
-    }
-
-    @http:ResourceConfig {
         methods: ["PUT"],
         path: "/order/{orderId}",
         body: "info"
     }
-    resource function updatelOrder(http:Caller caller, http:Request req, string orderId, json info) returns error? {
+    resource function updateOrder(http:Caller caller, http:Request req, string orderId, json info) returns error? {
         boolean updated = check updateOrderInfo(orderId, info);
         if (updated) {
             check caller->respond("Order Updated: " + untaint orderId);

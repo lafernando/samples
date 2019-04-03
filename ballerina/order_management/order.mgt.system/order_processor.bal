@@ -11,7 +11,7 @@ kafka:ConsumerConfig conf = {
 
 listener kafka:SimpleConsumer consumer = new(conf);
 
-service kafkaService on consumer {
+service orderProcessor on consumer {
     resource function onMessage(kafka:SimpleConsumer simpleConsumer, kafka:ConsumerRecord[] records) {
         foreach var rec in records {
             string val = encoding:byteArrayToString(rec.value, encoding = "utf-8");
