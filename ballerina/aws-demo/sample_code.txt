@@ -11,7 +11,7 @@ arn:aws:iam::908363916138:role/lambda-role
 
 aws lambda create-function --function-name uuid --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.uuid --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --timeout 10 --memory-size 1024
 
-aws lambda update-function-configuration --function-name uuid --layers arn:aws:lambda:us-east-2:141896495686:layer:ballerina-0-990-3:4
+aws lambda update-function-configuration --function-name uuid --layers arn:aws:lambda:us-west-1:141896495686:layer:ballerina-0-990-3:4
 
 aws lambda update-function-code --function-name uuid --zip-file fileb://aws-ballerina-lambda-functions.zip
 

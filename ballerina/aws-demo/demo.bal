@@ -16,12 +16,12 @@ listener http:Listener lx = new(8080);
 
 amazonrekn:Client reknClient = new(config);
 
-@kubernetes:ConfigMap {
-    ballerinaConf: "ballerina.conf"
-}
 @kubernetes:Deployment {
     dockerHost:"tcp://192.168.99.100:2376", 
     dockerCertPath:"/home/laf/.minikube/certs"    
+}
+@kubernetes:ConfigMap {
+    ballerinaConf: "ballerina.conf"
 }
 @http:ServiceConfig {
     basePath: "/"
