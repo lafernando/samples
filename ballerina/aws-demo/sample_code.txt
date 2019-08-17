@@ -5,7 +5,9 @@
     dockerHost: "tcp://192.168.99.100:2376", 
     dockerCertPath: "/home/laf/.minikube/certs"
 
-curl --data-binary "@/home/laf/Desktop/input.jpeg" http://192.168.99.100:31317/process
+curl --data-binary "@input.jpeg" http://192.168.99.102:32646/process
+
+curl --data-binary "@input.jpeg" http://localhost:8080/process
 
 arn:aws:iam::908363916138:role/lambda-role
 
@@ -16,7 +18,6 @@ aws lambda update-function-configuration --function-name uuid --layers arn:aws:l
 aws lambda update-function-code --function-name uuid --zip-file fileb://aws-ballerina-lambda-functions.zip
 
 ============================================================
-
 import ballerina/http;
 import ballerina/config;
 import wso2/amazonrekn;
@@ -27,34 +28,32 @@ amazonrekn:Configuration config = {
     secretKey: config:getAsString("SK")
 };
 
+amazonrekn:Client reknClient = new(config);
+
 @kubernetes:Service {
     serviceType: "NodePort"
 }
-listener http:Listener lx = new(8080);
-
-amazonrekn:Client reknClient = new(config);
-
 @kubernetes:ConfigMap {
-    ballerinaConf: "ballerina.conf"
+    conf: "ballerina.conf"
 }
 @kubernetes:Deployment {
-    dockerHost:"tcp://192.168.99.100:2376", 
+    dockerHost:"tcp://192.168.99.102:2376", 
     dockerCertPath:"/home/laf/.minikube/certs"    
 }
 @http:ServiceConfig {
     basePath: "/"
 }
-service myservice on lx {
+service myservice on new http:Listener(8080) {
 
     @http:ResourceConfig {
         path: "process"
     }
-    resource function doit(http:Caller caller, http:Request request) {
+    resource function doit(http:Caller caller, http:Request request) returns error? {
         var input = request.getBinaryPayload();
         if (input is byte[]) {
             var result = reknClient->detectText(input);
             if (result is string) {
-                _ = caller->respond(result);
+                check caller->respond(result);
             }
         }
     }
