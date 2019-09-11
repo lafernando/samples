@@ -13,17 +13,19 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/config;
 import ballerina/test;
+import ballerina/io;
+//import ballerina/config;
 
 Configuration config = {
-    username: config:getAsString("username"),
-    password: config:getAsString("password")
+    username: "myuser", // config:getAsString("username")
+    password: "mypass"  // config:getAsString("password")
 };
 
-//Client sclient = check new(config);
+Client sclient = check new(config);
 
 @test:Config {}
-function testActions() returns error? {
-
+function testActions() {
+    var result = sclient->doAction("HELLO:");
+    io:println(result);
 }

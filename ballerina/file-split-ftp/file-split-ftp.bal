@@ -50,6 +50,8 @@ service file_reader on filein {
         if (fe.name.endsWith(".txt")) {
             io:println("File: ", fe.name);
             check processFileData(<@untainted> fe);
+            check ftpFiles();
+            check sendDoneEmail();
         }
     }
 }
@@ -60,13 +62,8 @@ function processFileData(file:FileEvent fe) returns error? {
     io:ReadableTextRecordChannel rch = new(cch, rs = "\n", fs = "*");
     while (rch.hasNext()) {
         string[] line = check rch.getNext();
-        string fname = extractFileName(line);
-        check writeFileLine("/tmp/out/" + fname, line);
+        check writeFileLine("/tmp/out/" + line[0], line);
     }
-}
-
-function extractFileName(string[] line) returns string {
-    return "1.txt";
 }
 
 function writeFileLine(string path, string[] line) returns error? {

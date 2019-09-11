@@ -14,32 +14,35 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/socket;
+import ballerina/lang.'string as strings;
 
 # Object to initialize a TCP socket based client.
 #
 public type Client client object {
 
-    socket:Client socket;
+    socket:Client socket = new({ host: "localhost", port: 65000 });
+
     string authToken;
 
     public function __init(Configuration config) returns error? {
-        self.socket = new({ host: "localhost", port: 75000 });
-        check self.writeFully(self.socket, "AUTH".toBytes());
-        // populate the auth token after a security handshake (or something similar)
-        self.authToken = "";
+        string authStr = "AUTH\n" + config.username + "\n" + config.password + "\n";
+        check self.writeFully(self.socket, authStr.toBytes());
+        self.authToken = check strings:fromBytes(check self.readFully(self.socket, 4));
     }
 
     # Do the action.
     #
-    # + action - The action to be done
+    # + input - The input
     # + return - The result of the action
-    public remote function doAction(string action) returns string|error {
+    public remote function doAction(string input) returns string|error {
         // write all the bytes given
-        check self.writeFully(self.socket, "DATA".toBytes());
-        int n = 10;
+        string payload = self.authToken + "\n" + input;
+        byte[] data = payload.toBytes();
+        check self.writeFully(self.socket, data);
+        int n = 4;
         // read n number of bytes
         byte[] readData = check self.readFully(self.socket, n);
-        return "";
+        return check strings:fromBytes(readData);
     }
 
     function readFully(socket:Client socket, int length) returns byte[]|error {
@@ -69,4 +72,3 @@ public type Client client object {
     }
 
 };
-
