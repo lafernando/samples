@@ -10,4 +10,18 @@ This is a sample Ballerina connector which demonstrates TCP socket communication
 ##### Sample
 
 ```ballerina
+import ballerina/io;
+import ballerina/config;
+import lafernando/socketsample;
+
+socketsample:Configuration config = {
+    username: config:getAsString("username"),
+    password: config:getAsString("password")
+};
+
+public function main() returns error? {
+    socketsample:Client sclient = check new(config);
+    var result = sclient->doAction("HELLO:");
+    io:println("Result: ", result);
+}
 ```
