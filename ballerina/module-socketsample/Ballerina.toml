@@ -1,0 +1,7 @@
+[project]
+org-name = "lafernando"
+version = "0.1.0"
+authors = ["lafernando"]
+keywords = ["socket", "binary"]
+repository = "https://github.com/lafernando/samples"
+license = ["Apache-2.0"]
