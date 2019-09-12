@@ -22,8 +22,8 @@ aws lambda update-function-code --function-name uuid --zip-file fileb://aws-ball
 ============================================================
 import ballerina/http;
 import ballerina/config;
+import ballerina/kubernetes;
 import wso2/amazonrekn;
-import ballerinax/kubernetes;
 
 amazonrekn:Configuration config = {
     accessKey: config:getAsString("AK"),
@@ -32,18 +32,18 @@ amazonrekn:Configuration config = {
 
 amazonrekn:Client reknClient = new(config);
 
+@http:ServiceConfig {
+    basePath: "/"
+}
 @kubernetes:Service {
-    serviceType: "NodePort"
+    serviceType: "NodePort" 
+}
+@kubernetes:Deployment {
+    dockerHost: "tcp://192.168.99.102:2376", 
+    dockerCertPath: "/home/laf/.minikube/certs"
 }
 @kubernetes:ConfigMap {
     conf: "ballerina.conf"
-}
-@kubernetes:Deployment {
-    dockerHost:"tcp://192.168.99.102:2376", 
-    dockerCertPath:"/home/laf/.minikube/certs"    
-}
-@http:ServiceConfig {
-    basePath: "/"
 }
 service myservice on new http:Listener(9090) {
 
