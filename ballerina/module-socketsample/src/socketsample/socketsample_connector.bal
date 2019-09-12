@@ -49,7 +49,9 @@ public type Client client object {
         byte[] result = [];
         int remaining = length;
         while (remaining > 0) {
-            var [data, i] = check self.readSingle(socket, remaining);
+            //var [data, i] = check self.socket->read(remaining);    
+            var x = check self.socket->read(remaining);    
+            var [data, i] = x;
             remaining -= i;
             result.push(...data);
         }
@@ -59,16 +61,9 @@ public type Client client object {
     function writeFully(socket:Client socket, byte[] data) returns error? {
         int i = 0;
         while i < data.length() {
-            i += check self.writeSingle(socket, data.slice(i, data.length()));
+            int j = check self.socket->write(data.slice(i, data.length()));
+            i += j;
         }
-    }
-
-    function writeSingle(socket:Client socket, byte[] data) returns int|error {
-        return self.socket->write(data);
-    }
-
-    function readSingle(socket:Client socket, int length) returns @tainted ([byte[],int]|error) {
-        return self.socket->read(length);
     }
 
 };

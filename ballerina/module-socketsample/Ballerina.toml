@@ -1,6 +1,6 @@
 [project]
 org-name = "lafernando"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["lafernando"]
 keywords = ["socket", "binary"]
 repository = "https://github.com/lafernando/samples"
