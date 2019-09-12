@@ -49,9 +49,9 @@ public type Client client object {
         byte[] result = [];
         int remaining = length;
         while (remaining > 0) {
-            //var [data, i] = check self.socket->read(remaining);    
-            var x = check self.socket->read(remaining);    
-            var [data, i] = x;
+            var [data, i] = check self.socket->read(remaining);    
+            //var x = check self.socket->read(remaining);    
+            //var [data, i] = x;
             remaining -= i;
             result.push(...data);
         }
