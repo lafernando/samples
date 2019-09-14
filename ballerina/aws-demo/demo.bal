@@ -1,40 +1,41 @@
 import ballerina/http;
-import ballerina/config;
-import ballerina/kubernetes;
 import wso2/amazonrekn;
+import ballerina/config;
+import ballerina/io;
+import ballerina/kubernetes;
 
-amazonrekn:Configuration config = {
+amazonrekn:Configuration conf = {
     accessKey: config:getAsString("AK"),
     secretKey: config:getAsString("SK")
 };
 
-amazonrekn:Client reknClient = new(config);
+amazonrekn:Client ac = new(conf);
 
-@http:ServiceConfig {
-    basePath: "/"
-}
-@kubernetes:Service {
-    serviceType: "NodePort" 
-}
 @kubernetes:Deployment {
     dockerHost: "tcp://192.168.99.102:2376", 
     dockerCertPath: "/home/laf/.minikube/certs"
 }
+@kubernetes:Service {
+    serviceType: "NodePort"
+}
 @kubernetes:ConfigMap {
     conf: "ballerina.conf"
 }
-service myservice on new http:Listener(9090) {
+@http:ServiceConfig {
+    basePath: "/"
+}
+service myservice on new http:Listener(8080) {
 
     @http:ResourceConfig {
-        path: "process"
+        methods: ["POST"],
+        path: "request"
     }
-    resource function doit(http:Caller caller, http:Request request) returns error? {
-        var input = request.getBinaryPayload();
-        if (input is byte[]) {
-            var result = reknClient->detectText(<@untainted> input);
-            if (result is string) {
-                check caller->respond(result);
-            }
+    resource function myrequest(http:Caller caller, http:Request request) returns error? {
+        byte[] payload = check request.getBinaryPayload();
+        string result = check ac->detectText(<@untainted> payload);
+        error? err = caller->respond(result);
+        if (err is error) {
+            io:println("Error: " , err);
         }
     }
 

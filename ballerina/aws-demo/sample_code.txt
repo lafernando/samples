@@ -9,7 +9,7 @@
 
 curl --data-binary "@input.jpeg" http://192.168.99.102:30135/process
 
-curl --data-binary "@input.jpeg" http://localhost:9090/process
+curl --data-binary "@input.jpeg" http://localhost:8080/process
 
 arn:aws:iam::908363916138:role/lambda-role
 
