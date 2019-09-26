@@ -5,6 +5,8 @@ import ballerina/io;
 import ballerina/kubernetes;
 
 amazonrekn:Configuration conf = {
+    // AK and SK can be given as envionment variables
+    // or else can be passed in from a configuration file
     accessKey: config:getAsString("AK"),
     secretKey: config:getAsString("SK")
 };
@@ -28,9 +30,9 @@ service myservice on new http:Listener(8080) {
 
     @http:ResourceConfig {
         methods: ["POST"],
-        path: "request"
+        path: "process"
     }
-    resource function myrequest(http:Caller caller, http:Request request) returns error? {
+    resource function myprocess(http:Caller caller, http:Request request) returns error? {
         byte[] payload = check request.getBinaryPayload();
         string result = check ac->detectText(<@untainted> payload);
         error? err = caller->respond(result);
