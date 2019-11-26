@@ -11,17 +11,17 @@ amazonrekn:Configuration conf = {
     secretKey: config:getAsString("SK")
 };
 
-amazonrekn:Client ac = new(conf);
+amazonrekn:Client amzonrekn = new(conf);
 
-@kubernetes:Deployment {
-    dockerHost: "tcp://192.168.99.102:2376", 
-    dockerCertPath: "/home/laf/.minikube/certs"
+@kubernetes:ConfigMap {
+    conf: "ballerina.conf"
 }
 @kubernetes:Service {
     serviceType: "NodePort"
 }
-@kubernetes:ConfigMap {
-    conf: "ballerina.conf"
+@kubernetes:Deployment {
+    dockerHost: "tcp://192.168.99.102:2376", 
+    dockerCertPath: "/home/laf/.minikube/certs"
 }
 @http:ServiceConfig {
     basePath: "/"
@@ -34,7 +34,7 @@ service myservice on new http:Listener(8080) {
     }
     resource function myprocess(http:Caller caller, http:Request request) returns error? {
         byte[] payload = check request.getBinaryPayload();
-        string result = check ac->detectText(<@untainted> payload);
+        string result = check amzonrekn->detectText(<@untainted> payload);
         error? err = caller->respond(result);
         if (err is error) {
             io:println("Error: " , err);

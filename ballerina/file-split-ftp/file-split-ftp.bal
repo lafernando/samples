@@ -1,5 +1,4 @@
 import ballerina/file;
-import ballerina/log;
 import ballerina/io;
 import ballerina/config;
 import wso2/ftp;
