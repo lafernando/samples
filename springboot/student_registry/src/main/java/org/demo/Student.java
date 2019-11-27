@@ -2,13 +2,13 @@ package org.demo;
 
 public class Student {
 
-    private int id;
+    private String id;
     
     private String name;
     
     private String major = "CS";
     
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -20,7 +20,7 @@ public class Student {
         return major;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
