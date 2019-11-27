@@ -6,14 +6,8 @@ public class Student {
     
     private String name;
     
-    private String major;
+    private String major = "CS";
     
-    public Student(int id, String name, String major) {
-        this.id = id;
-        this.name = name;
-        this.major = major;
-    }
-
     public int getId() {
         return id;
     }
@@ -24,6 +18,18 @@ public class Student {
 
     public String getMajor() {
         return major;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
     }
     
 }
