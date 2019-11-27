@@ -20,7 +20,11 @@ public class StudentRegistryController {
     
     @GetMapping("/registry/{id}")
     public Student lookupStudent(@PathVariable("id") String id) {
-        return this.registry.get(id);
+        Student student = this.registry.get(id);
+        if (student == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student with the given id does not exist");
+        }
+        return student;
     }
 
     @PostMapping("/registry/")

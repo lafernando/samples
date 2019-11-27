@@ -24,7 +24,12 @@ service StudentRegistry on new http:Listener(8080) {
         methods: ["GET"]
     }
     resource function lookupStudent(http:Caller caller, http:Request request, string id) returns error? {
-        check caller->respond(check json.constructFrom(students[id]));
+        Student? student = students[id];
+        if student is () {
+            check self.respond(caller, "Student with the given id does not exist", 404);
+        } else {
+            check caller->respond(check json.constructFrom(student));
+        }
     }
 
     @http:ResourceConfig {
@@ -34,7 +39,7 @@ service StudentRegistry on new http:Listener(8080) {
     }
     resource function addStudent(http:Caller caller, http:Request request, Student student) returns error? {
         if students.hasKey(student.id) {
-            check self.sendBadRequest(caller, "Student with the given id already exists");
+            check self.respond(caller, "Student with the given id already exists", 400);
             return;
         }
         students[student.id] = student;
@@ -48,7 +53,7 @@ service StudentRegistry on new http:Listener(8080) {
     }
     resource function updateStudent(http:Caller caller, http:Request request, Student student) returns error? {
         if !students.hasKey(student.id) {
-            check self.sendBadRequest(caller, "Student with the given id does not exist");
+            check self.respond(caller, "Student with the given id does not exist", 400);
             return;
         }
         students[student.id] = student;
@@ -64,9 +69,9 @@ service StudentRegistry on new http:Listener(8080) {
         check caller->ok();
     }
 
-    function sendBadRequest(http:Caller caller, string msg) returns error? {
+    function respond(http:Caller caller, string msg, int sc) returns error? {
         http:Response resp = new;
-        resp.statusCode = 400;
+        resp.statusCode = sc;
         resp.setTextPayload(msg);
         check caller->respond(resp);
     }
