@@ -6,7 +6,7 @@ public class Student {
     
     private String name;
     
-    private String major = "CS";
+    private Major major = Major.CS;
     
     public String getId() {
         return id;
@@ -16,7 +16,7 @@ public class Student {
         return name;
     }
 
-    public String getMajor() {
+    public Major getMajor() {
         return major;
     }
 
@@ -28,8 +28,14 @@ public class Student {
         this.name = name;
     }
 
-    public void setMajor(String major) {
+    public void setMajor(Major major) {
         this.major = major;
     }
     
+}
+
+enum Major {
+    CS,
+    Physics,
+    Chemistry
 }
