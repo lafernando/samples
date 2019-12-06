@@ -4,7 +4,7 @@ public const CS = "CS";
 public const PHYSICS = "Physics";
 public const CHEMISTRY = "Chemistry";
 
-type Major CS|PHYSICS|CHEMISTRY;
+type Major CS | PHYSICS | CHEMISTRY;
 
 type Student record {
     string id;
@@ -24,6 +24,8 @@ service StudentRegistry on new http:Listener(8080) {
         methods: ["GET"]
     }
     resource function lookupStudent(http:Caller caller, http:Request request, string id) returns error? {
+        int x = 5;
+        int a = <int>x;
         Student? student = students[id];
         if student is () {
             check self.respond(caller, "Student with the given id does not exist", 404);

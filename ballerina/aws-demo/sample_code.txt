@@ -7,56 +7,61 @@
     dockerCertPath: "/home/laf/.minikube/certs"
 }
 
+az aks get-credentials --resource-group connector --name k8stest1
+
+@kubernetes:Deployment {
+    image: "$env{docker_username}/awsdemo-$env{GITHUB_SHA}",
+    push: true,
+    username: "$env{docker_username}",
+    password: "$env{docker_password}",
+    imagePullPolicy: "Always"
+}
+
 curl --data-binary "@input.jpeg" http://192.168.99.102:30135/process
 
 curl --data-binary "@input.jpeg" http://localhost:8080/process
 
 arn:aws:iam::908363916138:role/lambda-role
 
-aws lambda create-function --function-name uuid --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.uuid --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --timeout 10 --memory-size 1024
+// update external IP in prom config and grafana prom data source
 
-aws lambda update-function-configuration --function-name uuid --layers arn:aws:lambda:us-west-1:141896495686:layer:ballerina-0-990-3:4
+sudo docker run -p 19090:9090 -v /home/laf/dev/samples/ballerina/aws-demo/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
 
-aws lambda update-function-code --function-name uuid --zip-file fileb://aws-ballerina-lambda-functions.zip
+sudo docker run -p 3000:3000 grafana/grafana
 
-============================================================
-import ballerina/http;
-import ballerina/config;
-import ballerina/kubernetes;
+https://grafana.com/dashboards/5841
+
+ballerina run demo.bal --b7a.observability.enabled=true
+
+============================================================import ballerina/http;
 import wso2/amazonrekn;
+import ballerina/config;
+import ballerina/io;
 
-amazonrekn:Configuration config = {
+amazonrekn:Configuration conf = {
+    // AK and SK can be given as envionment variables
+    // or else can be passed in from a configuration file
     accessKey: config:getAsString("AK"),
     secretKey: config:getAsString("SK")
 };
 
-amazonrekn:Client reknClient = new(config);
+amazonrekn:Client amzonrekn = new(conf);
 
 @http:ServiceConfig {
     basePath: "/"
 }
-@kubernetes:Service {
-    serviceType: "NodePort" 
-}
-@kubernetes:Deployment {
-    dockerHost: "tcp://192.168.99.102:2376", 
-    dockerCertPath: "/home/laf/.minikube/certs"
-}
-@kubernetes:ConfigMap {
-    conf: "ballerina.conf"
-}
-service myservice on new http:Listener(9090) {
+service myservice on new http:Listener(8080) {
 
     @http:ResourceConfig {
+        methods: ["POST"],
         path: "process"
     }
-    resource function doit(http:Caller caller, http:Request request) returns error? {
-        var input = request.getBinaryPayload();
-        if (input is byte[]) {
-            var result = reknClient->detectText(<@untainted> input);
-            if (result is string) {
-                check caller->respond(result);
-            }
+    resource function myprocess(http:Caller caller, http:Request request) returns error? {
+        byte[] payload = check request.getBinaryPayload();
+        string result = check amzonrekn->detectText(<@untainted> payload);
+        error? err = caller->respond(result);
+        if (err is error) {
+            io:println("Error: " , err);
         }
     }
 

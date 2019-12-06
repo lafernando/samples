@@ -1,0 +1,112 @@
+[2019-04-03 11:16:17,479] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 11:16:17,564] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 11:21:28,146] ERROR {org.ballerinax.kubernetes.KubernetesPlugin} - package [laf/order.mgt.system:0.0.1] Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: java.net.NoRouteToHostException: No route to host (Host unreachable) 
+org.ballerinax.kubernetes.exceptions.KubernetesPluginException: Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: java.net.NoRouteToHostException: No route to host (Host unreachable)
+	at org.ballerinax.kubernetes.handlers.DockerHandler.createArtifacts(DockerHandler.java:50)
+	at org.ballerinax.kubernetes.ArtifactManager.createArtifacts(ArtifactManager.java:80)
+	at org.ballerinax.kubernetes.KubernetesPlugin.codeGenerated(KubernetesPlugin.java:152)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.lambda$writeExecutableBinary$0(BinaryFileWriter.java:121)
+	at java.lang.Iterable.forEach(Iterable.java:75)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.writeExecutableBinary(BinaryFileWriter.java:120)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.writeExecutableBinary(BinaryFileWriter.java:102)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.write(BinaryFileWriter.java:86)
+	at java.util.ArrayList.forEach(ArrayList.java:1257)
+	at org.wso2.ballerinalang.compiler.Compiler.write(Compiler.java:111)
+	at org.ballerinalang.packerina.BuilderUtils.compileWithTestsAndWrite(BuilderUtils.java:111)
+	at org.ballerinalang.packerina.cmd.BuildCommand.execute(BuildCommand.java:98)
+	at java.util.Optional.ifPresent(Optional.java:159)
+	at org.ballerinalang.launcher.Main.main(Main.java:67)
+Caused by: org.ballerinax.docker.generator.exceptions.DockerGenException: Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: java.net.NoRouteToHostException: No route to host (Host unreachable)
+	at org.ballerinax.docker.generator.DockerArtifactHandler.handleError(DockerArtifactHandler.java:163)
+	at org.ballerinax.docker.generator.DockerArtifactHandler.buildImage(DockerArtifactHandler.java:158)
+	at org.ballerinax.docker.generator.DockerArtifactHandler.createArtifacts(DockerArtifactHandler.java:97)
+	at org.ballerinax.kubernetes.handlers.DockerHandler.createArtifacts(DockerHandler.java:47)
+	... 13 more
+ 
+[2019-04-03 11:28:28,720] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 11:28:28,825] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 11:31:00,418] WARN  {org.wso2.transport.http.netty.contractimpl.listener.states.ReceivingHeaders} - text is empty (possibly HTTP/0.9)  
+[2019-04-03 11:31:00,421] WARN  {org.wso2.transport.http.netty.contractimpl.common.states.StateUtil} - Remote client closed the connection while reading inbound request headers  
+[2019-04-03 11:36:53,744] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 11:36:53,858] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 11:42:07,485] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 11:42:07,562] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 12:53:23,251] WARN  {org.wso2.transport.http.netty.contractimpl.listener.states.ReceivingHeaders} - text is empty (possibly HTTP/0.9)  
+[2019-04-03 12:53:23,253] WARN  {org.wso2.transport.http.netty.contractimpl.common.states.StateUtil} - Remote client closed the connection while reading inbound request headers  
+[2019-04-03 12:53:56,059] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 12:53:56,200] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 12:54:32,735] WARN  {org.wso2.transport.http.netty.contractimpl.listener.states.ReceivingHeaders} - text is empty (possibly HTTP/0.9)  
+[2019-04-03 12:54:32,737] WARN  {org.wso2.transport.http.netty.contractimpl.common.states.StateUtil} - Remote client closed the connection while reading inbound request headers  
+[2019-04-03 13:03:37,832] ERROR {org.ballerinax.kubernetes.KubernetesPlugin} - package [laf/order.mgt.system:0.0.1] Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate 
+org.ballerinax.kubernetes.exceptions.KubernetesPluginException: Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate
+	at org.ballerinax.kubernetes.handlers.DockerHandler.createArtifacts(DockerHandler.java:50)
+	at org.ballerinax.kubernetes.ArtifactManager.createArtifacts(ArtifactManager.java:80)
+	at org.ballerinax.kubernetes.KubernetesPlugin.codeGenerated(KubernetesPlugin.java:152)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.lambda$writeExecutableBinary$0(BinaryFileWriter.java:121)
+	at java.lang.Iterable.forEach(Iterable.java:75)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.writeExecutableBinary(BinaryFileWriter.java:120)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.writeExecutableBinary(BinaryFileWriter.java:102)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.write(BinaryFileWriter.java:86)
+	at java.util.ArrayList.forEach(ArrayList.java:1257)
+	at org.wso2.ballerinalang.compiler.Compiler.write(Compiler.java:111)
+	at org.ballerinalang.packerina.BuilderUtils.compileWithTestsAndWrite(BuilderUtils.java:111)
+	at org.ballerinalang.packerina.cmd.BuildCommand.execute(BuildCommand.java:98)
+	at java.util.Optional.ifPresent(Optional.java:159)
+	at org.ballerinalang.launcher.Main.main(Main.java:67)
+Caused by: org.ballerinax.docker.generator.exceptions.DockerGenException: Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate
+	at org.ballerinax.docker.generator.DockerArtifactHandler.handleError(DockerArtifactHandler.java:163)
+	at org.ballerinax.docker.generator.DockerArtifactHandler.buildImage(DockerArtifactHandler.java:158)
+	at org.ballerinax.docker.generator.DockerArtifactHandler.createArtifacts(DockerArtifactHandler.java:97)
+	at org.ballerinax.kubernetes.handlers.DockerHandler.createArtifacts(DockerHandler.java:47)
+	... 13 more
+ 
+[2019-04-03 13:04:05,475] ERROR {org.ballerinax.kubernetes.KubernetesPlugin} - package [laf/order.mgt.system:0.0.1] Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate 
+org.ballerinax.kubernetes.exceptions.KubernetesPluginException: Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate
+	at org.ballerinax.kubernetes.handlers.DockerHandler.createArtifacts(DockerHandler.java:50)
+	at org.ballerinax.kubernetes.ArtifactManager.createArtifacts(ArtifactManager.java:80)
+	at org.ballerinax.kubernetes.KubernetesPlugin.codeGenerated(KubernetesPlugin.java:152)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.lambda$writeExecutableBinary$0(BinaryFileWriter.java:121)
+	at java.lang.Iterable.forEach(Iterable.java:75)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.writeExecutableBinary(BinaryFileWriter.java:120)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.writeExecutableBinary(BinaryFileWriter.java:102)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.write(BinaryFileWriter.java:86)
+	at java.util.ArrayList.forEach(ArrayList.java:1257)
+	at org.wso2.ballerinalang.compiler.Compiler.write(Compiler.java:111)
+	at org.ballerinalang.packerina.BuilderUtils.compileWithTestsAndWrite(BuilderUtils.java:111)
+	at org.ballerinalang.packerina.cmd.BuildCommand.execute(BuildCommand.java:98)
+	at java.util.Optional.ifPresent(Optional.java:159)
+	at org.ballerinalang.launcher.Main.main(Main.java:67)
+Caused by: org.ballerinax.docker.generator.exceptions.DockerGenException: Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate
+	at org.ballerinax.docker.generator.DockerArtifactHandler.handleError(DockerArtifactHandler.java:163)
+	at org.ballerinax.docker.generator.DockerArtifactHandler.buildImage(DockerArtifactHandler.java:158)
+	at org.ballerinax.docker.generator.DockerArtifactHandler.createArtifacts(DockerArtifactHandler.java:97)
+	at org.ballerinax.kubernetes.handlers.DockerHandler.createArtifacts(DockerHandler.java:47)
+	... 13 more
+ 
+[2019-04-03 13:04:24,865] ERROR {org.ballerinax.kubernetes.KubernetesPlugin} - package [laf/order.mgt.system:0.0.1] Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate 
+org.ballerinax.kubernetes.exceptions.KubernetesPluginException: Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate
+	at org.ballerinax.kubernetes.handlers.DockerHandler.createArtifacts(DockerHandler.java:50)
+	at org.ballerinax.kubernetes.ArtifactManager.createArtifacts(ArtifactManager.java:80)
+	at org.ballerinax.kubernetes.KubernetesPlugin.codeGenerated(KubernetesPlugin.java:152)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.lambda$writeExecutableBinary$0(BinaryFileWriter.java:121)
+	at java.lang.Iterable.forEach(Iterable.java:75)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.writeExecutableBinary(BinaryFileWriter.java:120)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.writeExecutableBinary(BinaryFileWriter.java:102)
+	at org.wso2.ballerinalang.compiler.BinaryFileWriter.write(BinaryFileWriter.java:86)
+	at java.util.ArrayList.forEach(ArrayList.java:1257)
+	at org.wso2.ballerinalang.compiler.Compiler.write(Compiler.java:111)
+	at org.ballerinalang.packerina.BuilderUtils.compileWithTestsAndWrite(BuilderUtils.java:111)
+	at org.ballerinalang.packerina.cmd.BuildCommand.execute(BuildCommand.java:98)
+	at java.util.Optional.ifPresent(Optional.java:159)
+	at org.ballerinalang.launcher.Main.main(Main.java:67)
+Caused by: org.ballerinax.docker.generator.exceptions.DockerGenException: Unable to connect to server: java.util.concurrent.ExecutionException: javax.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate
+	at org.ballerinax.docker.generator.DockerArtifactHandler.handleError(DockerArtifactHandler.java:163)
+	at org.ballerinax.docker.generator.DockerArtifactHandler.buildImage(DockerArtifactHandler.java:158)
+	at org.ballerinax.docker.generator.DockerArtifactHandler.createArtifacts(DockerArtifactHandler.java:97)
+	at org.ballerinax.kubernetes.handlers.DockerHandler.createArtifacts(DockerHandler.java:47)
+	... 13 more
+ 
+[2019-04-03 13:04:52,303] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 13:04:52,541] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 13:06:20,219] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
+[2019-04-03 13:06:20,378] WARN  {org.apache.kafka.clients.consumer.ConsumerConfig} - The configuration 'topics' was supplied but isn't a known config.  
