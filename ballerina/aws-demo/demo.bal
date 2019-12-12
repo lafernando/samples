@@ -1,32 +1,30 @@
 import ballerina/http;
 import wso2/amazonrekn;
 import ballerina/config;
-import ballerina/io;
 
 amazonrekn:Configuration conf = {
-    // AK and SK can be given as envionment variables
-    // or else can be passed in from a configuration file
-    accessKey: config:getAsString("AK"),
-    secretKey: config:getAsString("SK")
+    secretKey: config:getAsString("SK"),
+    accessKey: config:getAsString("AK")
 };
 
-amazonrekn:Client amzonrekn = new(conf);
+amazonrekn:Client reknClient = new(conf);
 
 @http:ServiceConfig {
     basePath: "/"
 }
-service myservice on new http:Listener(8080) {
+service ocrservice on new http:Listener(8080) {
 
     @http:ResourceConfig {
-        methods: ["POST"],
-        path: "process"
+        path: "/process",
+        methods: ["POST"]
     }
-    resource function myprocess(http:Caller caller, http:Request request) returns error? {
+    resource function process(http:Caller caller, http:Request request) returns error? {
         byte[] payload = check request.getBinaryPayload();
-        string result = check amzonrekn->detectText(<@untainted> payload);
-        error? err = caller->respond(result);
-        if (err is error) {
-            io:println("Error: " , err);
+        var response = reknClient->detectText(<@untainted> payload);
+        if response is string {
+            check caller->respond(response);
+        } else {
+            check caller->respond("Error: " + response.toString());
         }
     }
 

@@ -25,43 +25,61 @@ arn:aws:iam::908363916138:role/lambda-role
 
 // update external IP in prom config and grafana prom data source
 
-sudo docker run -p 19090:9090 -v /home/laf/dev/samples/ballerina/aws-demo/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+docker run -p 9090:9090 -v /home/laf/dev/samples/ballerina/aws-demo/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
 
-sudo docker run -p 3000:3000 grafana/grafana
+docker run -p 3000:3000 grafana/grafana
+
+docker run -p5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p5778:5778 -p16686:16686 -p14268:14268 jaegertracing/all-in-one:latest
 
 https://grafana.com/dashboards/5841
 
+http://localhost:16686/
+
 ballerina run demo.bal --b7a.observability.enabled=true
 
-============================================================import ballerina/http;
+============================================================
+
+import ballerina/http;
 import wso2/amazonrekn;
 import ballerina/config;
-import ballerina/io;
+import ballerina/kubernetes;
 
 amazonrekn:Configuration conf = {
-    // AK and SK can be given as envionment variables
-    // or else can be passed in from a configuration file
-    accessKey: config:getAsString("AK"),
-    secretKey: config:getAsString("SK")
+    secretKey: config:getAsString("SK"),
+    accessKey: config:getAsString("AK")
 };
 
-amazonrekn:Client amzonrekn = new(conf);
+amazonrekn:Client reknClient = new(conf);
 
+@kubernetes:ConfigMap {
+    conf: "ballerina.conf"
+}
+@kubernetes:Service {
+    serviceType: "LoadBalancer",
+    port: 80
+}
+@kubernetes:Deployment {
+    push: true,
+    image: "$env{docker_username}/ocr1",
+    username: "$env{docker_username}",
+    password: "$env{docker_password}"
+}
 @http:ServiceConfig {
     basePath: "/"
 }
-service myservice on new http:Listener(8080) {
+service ocrservice on new http:Listener(8080) {
 
     @http:ResourceConfig {
-        methods: ["POST"],
-        path: "process"
+        path: "/process",
+        methods: ["POST"]
     }
-    resource function myprocess(http:Caller caller, http:Request request) returns error? {
+    resource function process(http:Caller caller, http:Request request) returns error? {
         byte[] payload = check request.getBinaryPayload();
-        string result = check amzonrekn->detectText(<@untainted> payload);
-        error? err = caller->respond(result);
-        if (err is error) {
-            io:println("Error: " , err);
+        var response = reknClient->detectText(<@untainted> payload);
+        if response is string {
+            check caller->respond(response);
+        } else {
+            check caller->respond("Error: " + response.toString());
         }
     }
 
