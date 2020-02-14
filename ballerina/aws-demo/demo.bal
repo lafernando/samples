@@ -1,7 +1,6 @@
 import ballerina/http;
 import wso2/amazonrekn;
 import ballerina/config;
-import ballerina/kubernetes;
 
 amazonrekn:Configuration conf = {
     accessKey: config:getAsString("AK"),
@@ -10,19 +9,6 @@ amazonrekn:Configuration conf = {
 
 amazonrekn:Client reknClient = new(conf);
 
-@kubernetes:ConfigMap {
-    conf: "ballerina.conf"
-}
-@kubernetes:Service {
-    serviceType: "LoadBalancer",
-    port: 80
-}
-@kubernetes:Deployment {
-    image: "$env{docker_username}/ocrdemo1",
-    username: "$env{docker_username}",
-    password: "$env{docker_password}",
-    push: true
-}
 @http:ServiceConfig {
     basePath: "/"
 }
@@ -32,7 +18,7 @@ service myservice on new http:Listener(8080) {
         path: "/action",
         methods: ["POST"]
     }
-    resource function doit(http:Caller caller, http:Request request) returns error? {
+    resource function doit(http:Caller caller, http:Request request) returns @tainted error? {
         byte[] payload = check request.getBinaryPayload();
         var result = reknClient->detectText(<@untainted> payload);
         if result is string {
