@@ -15,7 +15,7 @@ amazonrekn:Client reknClient = new(conf);
 service myservice on new http:Listener(8080) {
 
     @http:ResourceConfig {
-        path: "/action",
+        path: "/process",
         methods: ["POST"]
     }
     resource function doit(http:Caller caller, http:Request request) returns @tainted error? {
