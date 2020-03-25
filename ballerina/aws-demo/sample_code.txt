@@ -37,6 +37,10 @@ http://localhost:16686/
 
 ballerina run demo.bal --b7a.observability.enabled=true
 
+https://github.com/lafernando/ballerina-k8s-actions-sample
+https://github.com/lafernando/lambda-actions-example
+https://github.com/lafernando/module-azurecv
+
 ============================================================
 
 import ballerina/http;
