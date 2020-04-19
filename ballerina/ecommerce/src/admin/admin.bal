@@ -1,12 +1,36 @@
 import ballerina/http;
+import ballerina/encoding;
 import laf/commons as x;
 
 http:Client cartClient = new("http://localhost:8080/ShoppingCart");
 http:Client orderMgtClient = new("http://localhost:8081/OrderMgt");
 http:Client billingClient = new("http://localhost:8082/Billing");
 http:Client shippingClient = new("http://localhost:8083/Shipping");
+http:Client invClient = new("http://localhost:8084/Inventory");
 
-service Admin on new http:Listener(8084) {
+service Admin on new http:Listener(8085) {
+
+    @http:ResourceConfig {
+        path: "/invsearch/{query}",
+        methods: ["GET"]
+    }
+    resource function search(http:Caller caller, http:Request request, 
+                             string query) returns @tainted error? {
+        http:Response resp = check invClient->get("/search/" + <@untainted> check encoding:encodeUriComponent(query, "UTF-8"));
+        check caller->respond(resp);
+    }
+
+    @http:ResourceConfig {
+        path: "/cartitems/{accountId}",
+        body: "item",
+        methods: ["POST"]
+    }
+    resource function addItem(http:Caller caller, http:Request request, 
+                              int accountId, x:Item item) returns error? {
+        http:Response resp = check cartClient->post("/items/" + <@untainted> accountId.toString(), 
+                                                    <@untainted> check json.constructFrom(item));
+        check caller->respond(resp);
+    }
 
     @http:ResourceConfig {
         path: "/checkout/{accountId}"

@@ -8,8 +8,12 @@ ballerina run target/bin/cart.jar --b7a.observability.enabled=true --b7a.observa
 ballerina run target/bin/ordermgt.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9798
 ballerina run target/bin/billing.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9799
 ballerina run target/bin/shipping.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9800
-ballerina run target/bin/admin.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9801
+ballerina run target/bin/inventory.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9801
+ballerina run target/bin/admin.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9802
 
 http://localhost:16686/
 http://localhost:3000/
 https://grafana.com/dashboards/5841
+
+curl -d '{"invId":3, "quantity":15}' http://localhost:8085/Admin/cartitems/1
+curl http://localhost:8085/Admin/checkout/1

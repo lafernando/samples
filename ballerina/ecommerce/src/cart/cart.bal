@@ -17,7 +17,7 @@ service ShoppingCart on new http:Listener(8080) {
         methods: ["POST"]
     }
     resource function addItem(http:Caller caller, http:Request request, 
-                              string accountId, x:Item item) returns error? {
+                              int accountId, x:Item item) returns error? {
         _ = check dbClient->update("INSERT INTO ECOM_ITEM (inventory_id, account_id, quantity) VALUES (?,?,?)", 
                                    item.invId, accountId, item.quantity);
         check caller->ok();
