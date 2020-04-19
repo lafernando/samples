@@ -1,8 +1,6 @@
 docker run -p 5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p5778:5778 -p16686:16686 -p14268:14268 jaegertracing/all-in-one:latest
 
-docker run -p 9090:9090 -v /home/laf/dev/samples/ballerina/ecommerce/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
-
-docker run -p 3000:3000 grafana/grafana
+ballerina build -a
 
 ballerina run target/bin/cart.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9797
 ballerina run target/bin/ordermgt.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9798
@@ -11,9 +9,11 @@ ballerina run target/bin/shipping.jar --b7a.observability.enabled=true --b7a.obs
 ballerina run target/bin/inventory.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9801
 ballerina run target/bin/admin.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9802
 
+docker run -p 9090:9090 -v /home/laf/dev/samples/ballerina/ecommerce/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+docker run -p 3000:3000 grafana/grafana
+
 http://localhost:16686/
 http://localhost:3000/
 https://grafana.com/dashboards/5841
 
-curl -d '{"invId":3, "quantity":15}' http://localhost:8085/Admin/cartitems/1
-curl http://localhost:8085/Admin/checkout/1
+ballerina run target/bin/simulation.jar 100 1000
