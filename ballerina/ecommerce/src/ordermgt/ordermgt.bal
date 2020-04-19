@@ -17,7 +17,7 @@ service OrderMgt on new http:Listener(8081) {
         string orderId = system:uuid();
         orderMap[orderId] = <@untainted> order;
         check caller->ok(orderId);
-        log:printInfo("OrderMgt - OrderId: " + orderId + " AccountId: " + order.accountId);
+        log:printInfo("OrderMgt - OrderId: " + orderId + " AccountId: " + order.accountId.toString());
     }
 
     @http:ResourceConfig {

@@ -11,9 +11,16 @@ service Admin on new http:Listener(8084) {
     @http:ResourceConfig {
         path: "/checkout/{accountId}"
     }
-    resource function checkout(http:Caller caller, http:Request request, string accountId) returns @tainted error? {
-        http:Response resp = check cartClient->get("/items/" + <@untainted> accountId);
+    resource function checkout(http:Caller caller, http:Request request, int accountId) returns @tainted error? {
+        http:Response resp = check cartClient->get("/items/" + <@untainted> accountId.toString());
         x:Item[] items = check x:Item[].constructFrom(check resp.getJsonPayload());
+        if items.length() == 0 {
+            http:Response respx = new;
+            respx.statusCode = 400;
+            respx.setTextPayload("Empty cart");
+            check caller->respond(respx);
+            return;
+        }
         x:Order order = { accountId, items };
         resp = check orderMgtClient->post("/order", <@untainted> check json.constructFrom(order));
         string orderId = check resp.getTextPayload();
@@ -23,6 +30,7 @@ service Admin on new http:Listener(8084) {
         x:Delivery delivery = { orderId };
         resp = check shippingClient->post("/delivery", <@untainted> check json.constructFrom(delivery));
         string trackingNumber = check resp.getTextPayload();
+        _ = check cartClient->delete("/items/" + <@untainted> accountId.toString());
         check caller->ok(<@untainted> { accountId: accountId, orderId: orderId, receiptNumber: receiptNumber, 
                                         trackingNumber: trackingNumber });
     }

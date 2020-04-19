@@ -1,10 +1,10 @@
 public type Item record {
-    string itemId;
+    int invId;
     int quantity;
 };
 
 public type Order record {
-    string accountId;
+    int accountId;
     Item[] items;
 };
 
