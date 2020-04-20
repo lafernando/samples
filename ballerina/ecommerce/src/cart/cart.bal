@@ -29,7 +29,8 @@ service ShoppingCart on new http:Listener(8080) {
     }
     resource function getItems(http:Caller caller, http:Request request, 
                                string accountId) returns @tainted error? {
-        var rs = check dbClient->select("SELECT inventory_id as invId, quantity FROM ECOM_ITEM WHERE account_id = ?", x:Item, accountId);
+        var rs = check dbClient->select("SELECT inventory_id as invId, quantity FROM ECOM_ITEM WHERE account_id = ?", 
+                                        x:Item, accountId);
         check caller->ok(jsonutils:fromTable(rs));
     }
 

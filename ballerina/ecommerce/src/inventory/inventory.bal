@@ -16,7 +16,8 @@ service Inventory on new http:Listener(8084) {
     }
     resource function search(http:Caller caller, http:Request request, 
                              string query) returns @tainted error? {
-        var rs = check dbClient->select("SELECT id, description FROM ECOM_INVENTORY WHERE description LIKE '%" + <@untainted> query + "%'", ());
+        var rs = check dbClient->select("SELECT id, description FROM ECOM_INVENTORY WHERE description LIKE '%" + 
+                                        <@untainted> query + "%'", ());
         check caller->respond(jsonutils:fromTable(rs));
     }
 
