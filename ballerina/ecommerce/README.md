@@ -1,6 +1,8 @@
-docker run -p 5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p5778:5778 -p16686:16686 -p14268:14268 jaegertracing/all-in-one:latest
+mysql -u user -p < db.sql
 
 ballerina build -a
+
+docker run -p 5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p5778:5778 -p16686:16686 -p14268:14268 jaegertracing/all-in-one:latest
 
 ballerina run target/bin/cart.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9797
 ballerina run target/bin/ordermgt.jar --b7a.observability.enabled=true --b7a.observability.metrics.prometheus.port=9798
