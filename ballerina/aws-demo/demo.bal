@@ -1,6 +1,6 @@
-import ballerina/http;
 import wso2/amazonrekn;
 import ballerina/config;
+import ballerina/http;
 import ballerina/kubernetes;
 
 amazonrekn:Configuration conf = {
@@ -8,39 +8,26 @@ amazonrekn:Configuration conf = {
     secretKey: config:getAsString("SK")
 };
 
-amazonrekn:Client reknClient = new(conf);
+amazonrekn:Client reknClient = new (conf);
 
-@kubernetes:Service {
-    serviceType: "LoadBalancer",
-    port: 80
-}
 @kubernetes:ConfigMap {
     conf: "ballerina.conf"
 }
-@kubernetes:Deployment {
-    image: "$env{docker_username}/awsdemo",
-    push: true,
-    username: "$env{docker_username}",
-    password: "$env{docker_password}",
-    imagePullPolicy: "Always"
+@kubernetes:Service {
+    serviceType: "NodePort"
 }
-@http:ServiceConfig {
-    basePath: "/"
-}
-service myservice on new http:Listener(8080) {
+@kubernetes:Deployment { }
+service ocrservice on new http:Listener(8080) {
 
-    @http:ResourceConfig {
-        path: "/process",
-        methods: ["POST"]
-    }
-    resource function doit(http:Caller caller, http:Request request) returns @tainted error? {
-        byte[] payload = check request.getBinaryPayload();
-        var result = reknClient->detectText(<@untainted> payload);
-        if result is string {
-            check caller->respond(result);
+    resource function process(http:Caller caller, http:Request request) returns error? {
+        byte[]|error result = request.getBinaryPayload();
+        string value;
+        if result is byte[] {
+            value = check reknClient->detectText(<@untainted> result);
         } else {
-            check caller->respond("Error: " + result.toString());
+            value = "Error: " + result.toString();
         }
+        check caller->respond(<@untainted> value);
     }
 
 }
