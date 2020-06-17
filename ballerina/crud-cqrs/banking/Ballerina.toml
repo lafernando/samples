@@ -1,0 +1,10 @@
+[project]
+org-name= "laf"
+version= "0.1.0"
+
+[platform]
+target = "java8"
+
+[[platform.libraries]]
+path = "mysql-connector-java-8.0.18.jar"
+modules = ["account_mgt"]
