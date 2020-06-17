@@ -183,6 +183,15 @@ service AccountManagement on new http:Listener(8080) {
     }
 
     @http:ResourceConfig {
+        methods: ["GET"],
+        path: "listTransactions/{accountId}"
+    }
+    resource function listTransactions(http:Caller caller, http:Request request, string accountId) returns @tainted error? {
+        var result = check db->select("SELECT * FROM ACCOUNT_LOG WHERE accountId = ?", Account, <@untainted> accountId);
+        check caller->respond(jsonutils:fromTable(result));
+    }
+
+    @http:ResourceConfig {
         methods: ["GET"]
     }
     resource function getAccountActiveRatios(http:Caller caller, http:Request request) returns @tainted error? {
