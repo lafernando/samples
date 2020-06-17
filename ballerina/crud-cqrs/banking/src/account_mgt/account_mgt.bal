@@ -3,6 +3,7 @@ import ballerinax/java.jdbc;
 import ballerina/system;
 import ballerina/jsonutils;
 import ballerina/lang.'decimal as decimals;
+import ballerina/io;
 
 public type Account record {|
     string accountId = "";
@@ -13,6 +14,12 @@ public type Account record {|
     string branchId;
 |};
 
+public type LogEntry record {|
+    string accountId;
+    string eventType;
+    string eventPayload;
+|};
+
 public type ACCOUNT_STATE "ACTIVE"|"FROZEN"|"CLOSED";
 
 jdbc:Client db = new ({
@@ -21,37 +28,47 @@ jdbc:Client db = new ({
     password: "root"
 });
 
-type CommandHandler function (json) returns error?;
+type CommandHandler function (string, json) returns error?;
 
 map<CommandHandler> handlers = {};
 
-function createAccountHandler(json event) returns error? {
+function createAccountHandler(string accountId, json event) returns error? {
     Account account = check Account.constructFrom(event);
-    _ = check db->update("INSERT INTO ACCOUNT (account_id, name, address, balance, state, branch_id) " +
+    _ = check db->update("INSERT INTO ACCOUNT (accountId, name, address, balance, state, branchId) " +
                          "VALUES (?,?,?,?,?,?)", account.accountId, account.name, account.address, 
                          check decimals:fromString(account.balance), account.state, account.branchId);
 }
 
-public function main() {
-    handlers["CreateAccount"] = createAccountHandler;
+function freezeAccountHandler(string accountId, json event) returns error? {
+    _ = check db->update("UPDATE ACCOUNT SET state = ? WHERE accountId = ?", "FROZEN", accountId);
 }
 
-function dispatchCommand(string name, json event) returns error? {
-    CommandHandler? handler = handlers[name];
+function closeAccountHandler(string accountId, json event) returns error? {
+    _ = check db->update("UPDATE ACCOUNT SET state = ? WHERE accountId = ?", "CLOSED", accountId);
+}
+
+public function main() {
+    handlers["CreateAccount"] = createAccountHandler;
+    handlers["FreezeAccount"] = freezeAccountHandler;
+    handlers["CloseAccount"] = closeAccountHandler;
+}
+
+function dispatchCommand(string accountId, string eventType, json event) returns error? {
+    CommandHandler? handler = handlers[eventType];
     if handler is CommandHandler {
-        check handler(event);
+        check handler(accountId, event);
     }
 }
 
 function saveEvent(string accountId, string eventType, json eventPayload) returns error? {
-    _ = check db->update("INSERT INTO ACCOUNT_LOG (account_id, event_type, event_payload) " +
+    _ = check db->update("INSERT INTO ACCOUNT_LOG (accountId, eventType, eventPayload) " +
                          "VALUES (?,?,?)", accountId, eventType, eventPayload.toJsonString());
 }
 
 function executeCommandAndLogEvent(string accountId, string name, json event) returns error? {
     error? result;
     transaction {
-        result = dispatchCommand(name, event);
+        result = dispatchCommand(accountId, name, event);
         if result is error {
             abort;
         }
@@ -61,6 +78,19 @@ function executeCommandAndLogEvent(string accountId, string name, json event) re
         }
     }
     return result;
+}
+
+function parseJson(string str) returns json|error {
+    io:StringReader sr = new(str, encoding = "UTF-8");
+    return check <@untainted> sr.readJson();
+}
+
+function replayLog(string accountId) returns @tainted error? {
+    var result = check db->select("SELECT accountId, eventType, eventPayload FROM ACCOUNT_LOG WHERE accountId = ?", 
+                                   LogEntry, accountId);
+    foreach LogEntry entry in <table<LogEntry>> result {
+        check dispatchCommand(entry.accountId, entry.eventType, check parseJson(entry.eventPayload));
+    }
 }
 
 service AccountManagement on new http:Listener(8080) {
@@ -77,12 +107,41 @@ service AccountManagement on new http:Listener(8080) {
     }
 
     @http:ResourceConfig {
+        methods: ["POST"],
+        path: "freezeAccount/{accountId}"
+    }
+    resource function freezeAccount(http:Caller caller, http:Request request, string accountId) returns error? {
+        json event = { "reason" : check <@untainted> request.getTextPayload() };
+        check executeCommandAndLogEvent(accountId, "FreezeAccount", event);
+        check caller->respond(event);
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"],
+        path: "closeAccount/{accountId}"
+    }
+    resource function closeAccount(http:Caller caller, http:Request request, string accountId) returns error? {
+        json event = { "reason" : check <@untainted> request.getTextPayload() };
+        check executeCommandAndLogEvent(accountId, "CloseAccount", event);
+        check caller->respond(event);
+    }
+
+    @http:ResourceConfig {
         methods: ["GET"],
         path: "getAccountDetails/{accountId}"
     }
     resource function getAccountDetails(http:Caller caller, http:Request request, string accountId) returns @tainted error? {
-        var result = check db->select("SELECT * FROM ACCOUNT WHERE account_id = ?", Account, <@untainted> accountId);
+        var result = check db->select("SELECT * FROM ACCOUNT WHERE accountId = ?", Account, <@untainted> accountId);
         check caller->respond(jsonutils:fromTable(result));
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"],
+        path: "replayLog/{accountId}"
+    }
+    resource function replayLog(http:Caller caller, http:Request request, string accountId) returns @tainted error? {
+        check replayLog(accountId);
+        check caller->respond();
     }
 
 }
