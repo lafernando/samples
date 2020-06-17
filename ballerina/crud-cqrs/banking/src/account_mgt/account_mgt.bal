@@ -57,12 +57,17 @@ function debitAccountHandler(string accountId, json event) returns error? {
                           check decimals:fromString(event.toString()), accountId);
 }
 
-public function main() {
+public function main() returns @tainted error? {
     handlers["CreateAccount"] = createAccountHandler;
     handlers["FreezeAccount"] = freezeAccountHandler;
     handlers["CloseAccount"] = closeAccountHandler;
     handlers["CreditAccount"] = creditAccountHandler;
     handlers["DebitAccount"] = debitAccountHandler;
+    check refreshAccountActiveRatios();
+}
+
+function refreshAccountActiveRatios() returns @tainted error? {
+    _ = check db->call("CALL RefreshAccountActiveRatios()", ());
 }
 
 function dispatchCommand(string accountId, string eventType, json event) returns error? {
@@ -164,6 +169,14 @@ service AccountManagement on new http:Listener(8080) {
     }
     resource function getAccountDetails(http:Caller caller, http:Request request, string accountId) returns @tainted error? {
         var result = check db->select("SELECT * FROM ACCOUNT WHERE accountId = ?", Account, <@untainted> accountId);
+        check caller->respond(jsonutils:fromTable(result));
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"]
+    }
+    resource function getAccountActiveRatios(http:Caller caller, http:Request request) returns @tainted error? {
+        var result = check db->select("SELECT * FROM ACCOUNT_ACTIVE_RATIO", ());
         check caller->respond(jsonutils:fromTable(result));
     }
 
