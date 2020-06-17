@@ -7,7 +7,7 @@ CREATE TABLE ACCOUNT (account_id VARCHAR(50), name VARCHAR(1024), address VARCHA
                       state VARCHAR(10), branch_id VARCHAR(50), PRIMARY KEY(account_id), 
                       FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id));
 
-CREATE TABLE ACCOUNT_LOG (account_log_id VARCHAR(50), account_id VARCHAR(50), event_type VARCHAR(50), 
+CREATE TABLE ACCOUNT_LOG (account_log_id INT AUTO_INCREMENT, account_id VARCHAR(50), event_type VARCHAR(50), 
                          event_type_version INT, event_payload VARCHAR(2048), PRIMARY KEY(account_log_id), 
                          FOREIGN KEY (account_id) REFERENCES ACCOUNT(account_id));
 

@@ -25,7 +25,7 @@ type CommandHandler function (json) returns error?;
 
 map<CommandHandler> handlers = {};
 
-public function createAccountHandler(json event) returns error? {
+function createAccountHandler(json event) returns error? {
     Account account = check Account.constructFrom(event);
     _ = check db->update("INSERT INTO ACCOUNT (account_id, name, address, balance, state, branch_id) " +
                          "VALUES (?,?,?,?,?,?)", account.accountId, account.name, account.address, 
@@ -36,11 +36,30 @@ public function main() {
     handlers["CreateAccount"] = createAccountHandler;
 }
 
-public function dispatchCommand(string name, json event) returns error? {
+function dispatchCommand(string name, json event) returns error? {
     CommandHandler? handler = handlers[name];
     if handler is CommandHandler {
         check handler(event);
     }
+}
+
+function saveEvent(string eventType, json payload) returns error? {
+
+}
+
+function executeCommand(string name, json event) returns error? {
+    error? result;
+    transaction {
+        result = dispatchCommand(name, event);
+        if result is error {
+            abort;
+        }
+        result = saveEvent(name, event);
+        if result is error {
+            abort;
+        }
+    }
+    return result;
 }
 
 service AccountManagement on new http:Listener(8080) {
@@ -52,7 +71,7 @@ service AccountManagement on new http:Listener(8080) {
     resource function createAccount(http:Caller caller, http:Request request, Account account) returns error? {
         account.accountId = system:uuid();
         json event = check json.constructFrom(<@untainted> account);
-        check dispatchCommand("CreateAccount", event);
+        check executeCommand("CreateAccount", event);
         check caller->respond(event);
     }
 
