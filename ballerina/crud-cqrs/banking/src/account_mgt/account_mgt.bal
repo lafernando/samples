@@ -43,18 +43,19 @@ function dispatchCommand(string name, json event) returns error? {
     }
 }
 
-function saveEvent(string eventType, json payload) returns error? {
-
+function saveEvent(string accountId, string eventType, json eventPayload) returns error? {
+    _ = check db->update("INSERT INTO ACCOUNT_LOG (account_id, event_type, event_payload) " +
+                         "VALUES (?,?,?)", accountId, eventType, eventPayload.toJsonString());
 }
 
-function executeCommand(string name, json event) returns error? {
+function executeCommandAndLogEvent(string accountId, string name, json event) returns error? {
     error? result;
     transaction {
         result = dispatchCommand(name, event);
         if result is error {
             abort;
         }
-        result = saveEvent(name, event);
+        result = saveEvent(accountId, name, event);
         if result is error {
             abort;
         }
@@ -71,7 +72,7 @@ service AccountManagement on new http:Listener(8080) {
     resource function createAccount(http:Caller caller, http:Request request, Account account) returns error? {
         account.accountId = system:uuid();
         json event = check json.constructFrom(<@untainted> account);
-        check executeCommand("CreateAccount", event);
+        check executeCommandAndLogEvent(account.accountId, "CreateAccount", event);
         check caller->respond(event);
     }
 

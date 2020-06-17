@@ -8,8 +8,8 @@ CREATE TABLE ACCOUNT (account_id VARCHAR(50), name VARCHAR(1024), address VARCHA
                       FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id));
 
 CREATE TABLE ACCOUNT_LOG (account_log_id INT AUTO_INCREMENT, account_id VARCHAR(50), event_type VARCHAR(50), 
-                         event_type_version INT, event_payload VARCHAR(2048), PRIMARY KEY(account_log_id), 
-                         FOREIGN KEY (account_id) REFERENCES ACCOUNT(account_id));
+                          event_payload VARCHAR(2048), event_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+                          PRIMARY KEY(account_log_id), FOREIGN KEY (account_id) REFERENCES ACCOUNT(account_id));
 
 
 INSERT INTO BRANCH (branch_id, name, address) VALUES ("BWI", "Beloit", "554 West Oak Meadow Rd. Beloit, WI 53511");
