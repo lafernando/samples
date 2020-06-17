@@ -5,6 +5,8 @@ import ballerina/jsonutils;
 import ballerina/lang.'decimal as decimals;
 import ballerina/io;
 
+public type ACCOUNT_STATE "ACTIVE"|"FROZEN"|"CLOSED";
+
 public type Account record {|
     string accountId = "";
     string name;
@@ -19,8 +21,6 @@ public type LogEntry record {|
     string eventType;
     string eventPayload;
 |};
-
-public type ACCOUNT_STATE "ACTIVE"|"FROZEN"|"CLOSED";
 
 jdbc:Client db = new ({
     url: "jdbc:mysql://localhost:3306/BANKING_DB?serverTimezone=UTC",
@@ -47,10 +47,22 @@ function closeAccountHandler(string accountId, json event) returns error? {
     _ = check db->update("UPDATE ACCOUNT SET state = ? WHERE accountId = ?", "CLOSED", accountId);
 }
 
+function creditAccountHandler(string accountId, json event) returns error? {
+    _ = check db->update("UPDATE ACCOUNT SET balance = balance + ? WHERE accountId = ?", 
+                          check decimals:fromString(event.toString()), accountId);
+}
+
+function debitAccountHandler(string accountId, json event) returns error? {
+    _ = check db->update("UPDATE ACCOUNT SET balance = balance - ? WHERE accountId = ?", 
+                          check decimals:fromString(event.toString()), accountId);
+}
+
 public function main() {
     handlers["CreateAccount"] = createAccountHandler;
     handlers["FreezeAccount"] = freezeAccountHandler;
     handlers["CloseAccount"] = closeAccountHandler;
+    handlers["CreditAccount"] = creditAccountHandler;
+    handlers["DebitAccount"] = debitAccountHandler;
 }
 
 function dispatchCommand(string accountId, string eventType, json event) returns error? {
@@ -124,6 +136,26 @@ service AccountManagement on new http:Listener(8080) {
         json event = { "reason" : check <@untainted> request.getTextPayload() };
         check executeCommandAndLogEvent(accountId, "CloseAccount", event);
         check caller->respond(event);
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"],
+        path: "creditAccount/{accountId}"
+    }
+    resource function creditAccount(http:Caller caller, http:Request request, string accountId) returns @untainted error? {
+        json event = check request.getTextPayload();
+        check executeCommandAndLogEvent(accountId, "CreditAccount", event);
+        check caller->respond();
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"],
+        path: "debitAccount/{accountId}"
+    }
+    resource function debitAccount(http:Caller caller, http:Request request, string accountId) returns @untainted error? {
+        json event = check request.getTextPayload();
+        check executeCommandAndLogEvent(accountId, "DebitAccount", event);
+        check caller->respond();
     }
 
     @http:ResourceConfig {
