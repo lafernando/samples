@@ -4,6 +4,7 @@ import ballerina/system;
 import ballerina/jsonutils;
 import ballerina/lang.'decimal as decimals;
 import ballerina/io;
+import ballerina/task;
 
 public type ACCOUNT_STATE "ACTIVE"|"FROZEN"|"CLOSED";
 
@@ -63,12 +64,21 @@ public function main() returns @tainted error? {
     handlers["CloseAccount"] = closeAccountHandler;
     handlers["CreditAccount"] = creditAccountHandler;
     handlers["DebitAccount"] = debitAccountHandler;
-    check refreshAccountActiveRatios();
+    task:Scheduler timer = new ({
+        intervalInMillis: 10000,
+        initialDelayInMillis: 0
+    });
+    check timer.attach(materializedViewRefreshService);
+    check timer.start();
 }
 
-function refreshAccountActiveRatios() returns @tainted error? {
-    _ = check db->call("CALL RefreshAccountActiveRatios()", ());
-}
+service materializedViewRefreshService = service {
+
+    resource function onTrigger() returns @tainted error? {
+        _ = check db->call("CALL RefreshAccountActiveRatios()", ());
+    }
+
+};
 
 function dispatchCommand(string accountId, string eventType, json event) returns error? {
     CommandHandler? handler = handlers[eventType];
