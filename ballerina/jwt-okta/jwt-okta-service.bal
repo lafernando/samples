@@ -41,7 +41,8 @@ service echo on httpListener {
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
-            enabled: true
+            enabled: true,
+            scopes: ["sx1"]
         }
     }
     resource function hello(http:Caller caller, http:Request req) returns error? {
