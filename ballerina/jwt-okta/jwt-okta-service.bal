@@ -1,23 +1,25 @@
 import ballerina/http;
 import ballerina/jwt;
+import ballerina/runtime;
+import ballerina/io;
 
-jwt:InboundJwtAuthProvider jwtAuthProvider = new({
+jwt:InboundJwtAuthProvider jwkAuthProvider = new ({
     issuer: "https://dev-611006.okta.com/oauth2/default",
     audience: "api://default",
     jwksConfig: {
-        url: "https://dev-611006-admin.okta.com/oauth2/default/v1/keys",
+        url: "https://dev-611006-admin.okta.com/oauth2/default/v1/keys", 
         clientConfig: {
             secureSocket: {
                 trustStore: {
-                    path: "${BALLERINA_HOME}/bre/security/ballerinaKeystore.p12",
+                    path: "/usr/lib/ballerina/distributions/jballerina-1.2.5/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 }
             }
         }
-    }    
+    }
 });
 
-http:BearerAuthHandler jwtAuthHandler = new(jwtAuthProvider);
+http:BearerAuthHandler jwtAuthHandler = new(jwkAuthProvider);
 
 listener http:Listener httpListener = new(8080, config = {
     auth: {
@@ -25,7 +27,7 @@ listener http:Listener httpListener = new(8080, config = {
     },    
     secureSocket: {
         keyStore: {
-            path: "${BALLERINA_HOME}/bre/security/ballerinaKeystore.p12",
+            path: "/usr/lib/ballerina/distributions/jballerina-1.2.5/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
@@ -39,12 +41,15 @@ service echo on httpListener {
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
-            scopes: ["openid"],
             enabled: true
         }
     }
     resource function hello(http:Caller caller, http:Request req) returns error? {
-        check caller->respond("Hello!");
+        runtime:InvocationContext ctx = runtime:getInvocationContext();
+        runtime:AuthenticationContext? authc = ctx?.authenticationContext;
+        io:println("AuthX: ", authc);
+        runtime:Principal prc = <runtime:Principal> ctx.get("principal");
+        check caller->respond("Hello, " + prc?.username.toString() + " Claims: " + prc?.claims.toString());
     }
 
 }
