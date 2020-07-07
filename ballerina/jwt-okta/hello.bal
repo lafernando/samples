@@ -1,7 +1,6 @@
 import ballerina/http;
 import ballerina/jwt;
 import ballerina/runtime;
-import ballerina/io;
 
 jwt:InboundJwtAuthProvider jwkAuthProvider = new ({
     issuer: "https://dev-611006.okta.com/oauth2/default",
@@ -11,7 +10,7 @@ jwt:InboundJwtAuthProvider jwkAuthProvider = new ({
         clientConfig: {
             secureSocket: {
                 trustStore: {
-                    path: "/usr/lib/ballerina/distributions/jballerina-1.2.5/bre/security/ballerinaTruststore.p12",
+                    path: "${BALLERINA_HOME}/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 }
             }
@@ -27,7 +26,7 @@ listener http:Listener httpListener = new(8080, config = {
     },    
     secureSocket: {
         keyStore: {
-            path: "/usr/lib/ballerina/distributions/jballerina-1.2.5/bre/security/ballerinaKeystore.p12",
+            path: "${BALLERINA_HOME}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
@@ -36,21 +35,19 @@ listener http:Listener httpListener = new(8080, config = {
 @http:ServiceConfig {
     basePath: "/secured"
 }
-service echo on httpListener {
+service HelloService on httpListener {
 
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
-            enabled: true,
-            scopes: ["sx1"]
+            scopes: ["greet"]
         }
     }
     resource function hello(http:Caller caller, http:Request req) returns error? {
-        runtime:InvocationContext ctx = runtime:getInvocationContext();
-        runtime:AuthenticationContext? authc = ctx?.authenticationContext;
-        io:println("AuthX: ", authc);
-        runtime:Principal prc = <runtime:Principal> ctx.get("principal");
-        check caller->respond("Hello, " + prc?.username.toString() + " Claims: " + prc?.claims.toString());
+        runtime:InvocationContext invCtx = runtime:getInvocationContext();
+        runtime:AuthenticationContext? authCtx = invCtx?.authenticationContext;
+        runtime:Principal? prc = invCtx?.principal;
+        check caller->respond(string `Hello ${prc?.username?:"Anonymous"}, authScheme: ${authCtx?.scheme?:"N/A"} groups: ${prc?.claims["groups"].toString()}`);
     }
 
 }
