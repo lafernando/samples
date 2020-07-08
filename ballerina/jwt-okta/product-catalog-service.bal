@@ -9,7 +9,7 @@ jwt:InboundJwtAuthProvider jwkAuthProvider = new ({
         clientConfig: {
             secureSocket: {
                 trustStore: {
-                    path: "${BALLERINA_HOME}/bre/security/ballerinaTruststore.p12",
+                    path: "truststore.p12",
                     password: "ballerina"
                 }
             }
@@ -19,13 +19,13 @@ jwt:InboundJwtAuthProvider jwkAuthProvider = new ({
 
 http:BearerAuthHandler jwtAuthHandler = new(jwkAuthProvider);
 
-listener http:Listener httpListener = new(8080, config = {
+listener http:Listener httpsListener = new(8443, config = {
     auth: {
         authHandlers: [jwtAuthHandler]
     },    
     secureSocket: {
         keyStore: {
-            path: "${BALLERINA_HOME}/bre/security/ballerinaKeystore.p12",
+            path: "keystore.p12",
             password: "ballerina"
         }
     }
@@ -39,7 +39,7 @@ type Product record {|
 
 map<Product> products = {};
 
-service ProductCatalog on httpListener {
+service ProductCatalog on httpsListener {
 
     @http:ResourceConfig {
         methods: ["POST"],
@@ -89,3 +89,4 @@ service ProductCatalog on httpListener {
     }
 
 }
+

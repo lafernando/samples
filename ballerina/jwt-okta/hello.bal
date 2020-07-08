@@ -10,7 +10,7 @@ jwt:InboundJwtAuthProvider jwkAuthProvider = new ({
         clientConfig: {
             secureSocket: {
                 trustStore: {
-                    path: "${BALLERINA_HOME}/bre/security/ballerinaTruststore.p12",
+                    path: "truststore.p12",
                     password: "ballerina"
                 }
             }
@@ -20,13 +20,13 @@ jwt:InboundJwtAuthProvider jwkAuthProvider = new ({
 
 http:BearerAuthHandler jwtAuthHandler = new(jwkAuthProvider);
 
-listener http:Listener httpListener = new(8080, config = {
+listener http:Listener httpsListener = new(8443, config = {
     auth: {
         authHandlers: [jwtAuthHandler]
     },    
     secureSocket: {
         keyStore: {
-            path: "${BALLERINA_HOME}/bre/security/ballerinaKeystore.p12",
+            path: "keystore.p12",
             password: "ballerina"
         }
     }
@@ -35,7 +35,7 @@ listener http:Listener httpListener = new(8080, config = {
 @http:ServiceConfig {
     basePath: "/secured"
 }
-service HelloService on httpListener {
+service HelloService on httpsListener {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -47,7 +47,8 @@ service HelloService on httpListener {
         runtime:InvocationContext invCtx = runtime:getInvocationContext();
         runtime:AuthenticationContext? authCtx = invCtx?.authenticationContext;
         runtime:Principal? prc = invCtx?.principal;
-        check caller->respond(string `Hello ${prc?.username?:"Anonymous"}, authScheme: ${authCtx?.scheme?:"N/A"} groups: ${prc?.claims["groups"].toString()}`);
+        check caller->respond(string `Hello ${prc?.username?:"Anonymous"}, authScheme: ${authCtx?.scheme?:"N/A"} groups: ${prc?.claims["groups"].toString()}\n`);
     }
 
 }
+
