@@ -1,30 +1,29 @@
-import ballerinax/azure.functions as af;
 import ballerina/lang.array;
 import ballerina/system;
 import wso2/azurecv;
+import ballerinax/azure.functions as af;
 import ballerinax/googleapis.gmail version 0.12.0;
 
 @af:Function
 function submitJob(af:Context ctx, 
-                   @af:HTTPTrigger { authLevel: "anonymous", route: "submit/{email}" } af:HTTPRequest input, 
+                   @af:HTTPTrigger { authLevel: "anonymous", route: "submit/{email}" } string input, 
                    @af:BlobOutput { path: "images/{headers.X-ARR-LOG-ID}" } af:StringOutputBinding blob,
                    @af:QueueOutput { queueName: "requests" } af:StringOutputBinding queueOut,
                    @af:BindingName {} string email)
-                   returns @af:HTTPOutput string {
+                   returns @af:HTTPOutput json {
     map<json> headers = <map<json>> ctx.metadata.Headers;
     string jobId = headers["X-ARR-LOG-ID"].toString();
-    blob.value = input.body;
+    blob.value = input;
     json jobInfo = { jobId, email };
     queueOut.value = jobInfo.toJsonString();
-    return jobInfo.toJsonString();
+    return jobInfo;
 }
 
 @af:Function
-function processImage(@af:QueueTrigger { queueName: "requests" } string queueIn,
+function processImage(@af:QueueTrigger { queueName: "requests" } json jobInfo,
                       @af:BlobInput { path: "images/{jobId}" } string? encodedData,
                       @af:QueueOutput { queueName: "results" } af:StringOutputBinding queueOut) 
                       returns @tainted error? {
-    json jobInfo = check queueIn.fromJsonString();
     byte[] data = check array:fromBase64(encodedData.toString());
     azurecv:Client cvClient = new({ key: system:getEnv("AZURE_CV_KEY") });
     string text = check cvClient->ocr(data);
@@ -33,8 +32,7 @@ function processImage(@af:QueueTrigger { queueName: "requests" } string queueIn,
 }
 
 @af:Function
-function publishResults(@af:QueueTrigger { queueName: "results" } string queueIn) returns @tainted error? {
-    json result = check queueIn.fromJsonString();
+function publishResults(@af:QueueTrigger { queueName: "results" } json result) returns @tainted error? {
     _ = check sendEmail(result.jobInfo.jobId.toString(), result.jobInfo.email.toString(), result.text.toString());
 }
 
