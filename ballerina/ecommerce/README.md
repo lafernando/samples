@@ -1,4 +1,6 @@
-## Commands
+## Ballerina - Ecommerce Sample
+
+### Commands
 
 ```bash
 mysql -u user -p < db.sql
@@ -19,7 +21,7 @@ docker run -p 3000:3000 grafana/grafana
 ballerina run target/bin/simulation.jar 100 1000
 ```
 
-## URLs
+### URLs
  - Jaeger: http://localhost:16686/
  - Grafana: http://localhost:3000/
  - Ballerina/Grafana Dashboard: https://grafana.com/dashboards/5841
