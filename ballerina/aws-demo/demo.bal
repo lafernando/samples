@@ -16,7 +16,13 @@ amazonrekn:Client reknClient = new (conf);
 @kubernetes:Service {
     serviceType: "NodePort"
 }
-@kubernetes:Deployment { }
+@kubernetes:Deployment {
+    dockerHost: "tcp://192.168.99.103:2376", 
+    dockerCertPath: "/home/laf/.minikube/certs"
+}
+@http:ServiceConfig {
+    basePath: "/"
+}
 service ocrservice on new http:Listener(8080) {
 
     resource function process(http:Caller caller, http:Request request) returns error? {
