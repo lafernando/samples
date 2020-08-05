@@ -16,10 +16,7 @@ amazonrekn:Client reknClient = new (conf);
 @kubernetes:Service {
     serviceType: "NodePort"
 }
-@kubernetes:Deployment {
-    dockerHost: "tcp://192.168.99.103:2376", 
-    dockerCertPath: "/home/laf/.minikube/certs"
-}
+@kubernetes:Deployment { }
 @http:ServiceConfig {
     basePath: "/"
 }
