@@ -1,3 +1,6 @@
+## Commands
+
+```bash
 mysql -u user -p < db.sql
 
 ballerina build -a
@@ -13,8 +16,10 @@ docker run -p 5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p5778:5778 -p16686:
 docker run -p 9090:9090 -v /home/laf/dev/samples/ballerina/ecommerce/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
 docker run -p 3000:3000 grafana/grafana
 
-http://localhost:16686/
-http://localhost:3000/
-https://grafana.com/dashboards/5841
-
 ballerina run target/bin/simulation.jar 100 1000
+```
+
+## URLs
+ - Jaeger: http://localhost:16686/
+ - Grafana: http://localhost:3000/
+ - Ballerina/Grafana Dashboard: https://grafana.com/dashboards/5841
