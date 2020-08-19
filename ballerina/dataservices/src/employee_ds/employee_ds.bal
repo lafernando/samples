@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/java.jdbc;
+import ballerina/sql;
 
 jdbc:Client empDB = check new ("jdbc:mysql://localhost:3306/Employee", "root", "root");
 
@@ -33,7 +34,24 @@ service employeeDS on new http:Listener(8080) {
         path: "/employees",
         body: "payload"
     }
-    resource function addEmployee(http:Caller caller, http:Request req, Employee payload) {
+    resource function addEmployee(http:Caller caller, http:Request req,
+                                  Employee payload) returns error? {
+        Employee emp = <@untainted> payload;
+        _ = check empDB->execute(`INSERT INTO Employee VALUES (${emp.id}, 
+                                 ${emp.name}, ${emp.age}, ${emp.team})`);
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"],
+        path: "/employees_batch",
+        body: "payload"
+    }
+    resource function addEmployeeBatch(http:Caller caller, http:Request req,
+                                       Employee[] payload) returns error? {
+        sql:ParameterizedQuery[] batchQuery = <@untainted> from var emp in payload
+            select `INSERT INTO Employee VALUES (${emp.id}, ${emp.name},
+            ${emp.age}, ${emp.team})`;
+        _ = check empDB->batchExecute(batchQuery);
     }
 
     @http:ResourceConfig {
