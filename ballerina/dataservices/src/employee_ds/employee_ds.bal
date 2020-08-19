@@ -70,7 +70,7 @@ service employeeDS on new http:Listener(8080) {
     }
 
     @http:ResourceConfig {
-        methods: ["DELETE"],
+        methods: ["POST"],
         path: "/employee_team_swap/{id1}/{id2}"
     }
     resource function swapEmployeeTeams(http:Caller caller, http:Request req, int id1, int id2) returns error? {

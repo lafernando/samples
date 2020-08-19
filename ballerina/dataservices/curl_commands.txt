@@ -1,9 +1,11 @@
-curl -X POST -d "{'id':1, 'name':'Will Smith','age':55}" http://localhost:9090/data/employee
-curl -X POST -d "{'id':2, 'name':'Johnny Depp','age':45}" http://localhost:9090/data/employee
-curl -X GET http://localhost:9090/data/employee
-curl -X GET http://localhost:9090/data/employee/2
-curl -X PUT -d "{'id': 1, 'name':'Sunil Perera','age':66}" http://localhost:9090/data/employee
-curl -X GET http://localhost:9090/data/employee_swap/1/2
-curl -X DELETE http://localhost:9090/data/employee/1
-
-
+curl -X POST -d "{'id':1, 'name':'Jordyn Bird','age':55, 'team': 'Sales'}" http://localhost:9090/data/employees
+curl -X POST -d "{'id':2, 'name':'Jordyn Bird','age':45, 'team': 'Marketing'}" http://localhost:9090/data/employees
+curl -X POST -d "[{'id':3, 'name':'John Doe','age':25, 'team': 'Engineering'}, {'id':4, 'name':'Jame Doe','age':25, 'team': 'Engineering'}]" http://localhost:9090/data/employees_batch
+curl -X GET http://localhost:9090/data/employees
+curl -X GET http://localhost:9090/data/employees/2
+curl -X PUT -d "{'id': 1, 'name':'Sunil Perera','age':66, 'team': 'Sales'}" http://localhost:9090/data/employee
+curl -X GET http://localhost:9090/data/employees
+curl -X POST http://localhost:9090/data/employee_team_swap/1/2
+curl -X GET http://localhost:9090/data/employees
+curl -X DELETE http://localhost:9090/data/employees/1
+curl -X GET http://localhost:9090/data/employees
