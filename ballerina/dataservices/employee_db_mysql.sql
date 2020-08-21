@@ -1,6 +1,6 @@
-CREATE DATABASE Employee;
+CREATE DATABASE EmpDB;
 
-use Employee;
+use EmpDB;
 
 CREATE TABLE Employee (
   id INT,
