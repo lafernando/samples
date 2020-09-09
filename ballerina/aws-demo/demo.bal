@@ -22,15 +22,11 @@ amazonrekn:Client reknClient = new (conf);
 }
 service ocrservice on new http:Listener(8080) {
 
-    resource function process(http:Caller caller, http:Request request) returns error? {
-        byte[]|error result = request.getBinaryPayload();
-        string value;
-        if result is byte[] {
-            value = check reknClient->detectText(<@untainted> result);
-        } else {
-            value = "Error: " + result.toString();
-        }
+    resource function process(http:Caller caller, http:Request request) returns @tainted error? {
+        byte[] result = check request.getBinaryPayload();
+        string value = check reknClient->detectText(<@untainted> result);
         check caller->respond(<@untainted> value);
     }
 
 }
+
