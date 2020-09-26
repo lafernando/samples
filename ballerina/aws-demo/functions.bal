@@ -5,3 +5,4 @@ import ballerina/system;
 public function uuid(awslambda:Context ctx, json input) returns json|error {
     return system:uuid();
 }
+
