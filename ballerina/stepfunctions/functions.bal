@@ -10,7 +10,7 @@ public type LeaveRequest record {
 
 public type LeaveRequestResult record {
     *LeaveRequest;
-    boolean approved;
+    string decision;
     string taskToken;
 };
 
@@ -26,6 +26,7 @@ public type LeaveRequestTask record {
 };
 
 const LEAVE_REQUEST_SM_ARN = "arn:aws:states:us-west-1:908363916138:stateMachine:EmployeeLeaveWorkflow";
+const LEAVE_LEAD_REP_URL = "https://0uud44cwvf.execute-api.us-west-1.amazonaws.com/prod/leave_lead_response";
 
 map<Employee> employees = { 
     "E001": { name: "John Carpenter", email: "lafernando@gmail.com", leadId: "" },
@@ -48,8 +49,8 @@ public function processLeaveRequest(awslambda:Context ctx, LeaveRequestTask req)
     string date = req.Input.date;
     string? leadEmail = employees[employees[empId]?.leadId.toString()]?.email;
     if leadEmail is string {
-        string body = string `<a href="https://google.com/lead_leave_response/${empId}/${date}/true/${req.TaskToken}">Approve</a> or 
-                              <a href="https://google.com/lead_leave_response/${empId}/${date}/false/${req.TaskToken}">Deny</a>?`;
+        string body = string `<a href="${LEAVE_LEAD_REP_URL}/${empId}/${date}/approved/${req.TaskToken}">Approve</a> or 
+                              <a href="${LEAVE_LEAD_REP_URL}/${empId}/${date}/denied/${req.TaskToken}">Deny</a>?`;
         check sendEmail(leadEmail, string `Leave Request from ${
                         employees[empId]?.name.toString()} for ${date}`, body);
     }
@@ -57,8 +58,7 @@ public function processLeaveRequest(awslambda:Context ctx, LeaveRequestTask req)
 
 @awslambda:Function
 public function submitLeadResponse(awslambda:Context ctx, LeaveRequestResult result) returns json|error {
-    check stepfuncsClient->sendTaskSuccess(result.taskToken, { status: result.approved ? 
-                                           "Approved" : "Denied" });
+    check stepfuncsClient->sendTaskSuccess(result.taskToken, { decision: result.decision });
 }
 
 public function sendEmail(string address, string subject, string text) returns error? {
