@@ -2,6 +2,7 @@ import ballerinax/awslambda;
 import ballerina/system;
 import laf/aws.stepfuncs;
 import ballerinax/googleapis.gmail version 0.12.0;
+import ballerina/encoding;
 
 public type LeaveRequest record {
     string employeeId;
@@ -26,11 +27,11 @@ public type LeaveRequestTask record {
 };
 
 const LEAVE_REQUEST_SM_ARN = "arn:aws:states:us-west-1:908363916138:stateMachine:EmployeeLeaveWorkflow";
-const LEAVE_LEAD_REP_URL = "https://0uud44cwvf.execute-api.us-west-1.amazonaws.com/prod/leave_lead_response";
+const LEAVE_LEAD_RESP_URL = "https://0uud44cwvf.execute-api.us-west-1.amazonaws.com/prod/leave_lead_response";
 
 map<Employee> employees = { 
     "E001": { name: "John Carpenter", email: "lafernando@gmail.com", leadId: "" },
-    "E002": { name: "Jim O'Dell", email: "jim@foo.com", leadId: "E001" },
+    "E002": { name: "Jim O'Dell", email: "lafernando@gmail.com", leadId: "E001" },
     "E003": { name: "Jane Cook", email: "jane@foo.com", leadId: "E001" }
 };
 
@@ -47,10 +48,11 @@ public function requestLeave(awslambda:Context ctx, json req) returns json|error
 public function processLeaveRequest(awslambda:Context ctx, LeaveRequestTask req) returns error? {
     string empId = req.Input.employeeId;
     string date = req.Input.date;
+    string taskToken = check encoding:encodeUriComponent(req.TaskToken, "UTF-8");
     string? leadEmail = employees[employees[empId]?.leadId.toString()]?.email;
     if leadEmail is string {
-        string body = string `<a href="${LEAVE_LEAD_REP_URL}/${empId}/${date}/approved/${req.TaskToken}">Approve</a> or 
-                              <a href="${LEAVE_LEAD_REP_URL}/${empId}/${date}/denied/${req.TaskToken}">Deny</a>?`;
+        string body = string `<a href="${LEAVE_LEAD_RESP_URL}/${empId}/${date}/approved/${taskToken}">Approve</a> or 
+                              <a href="${LEAVE_LEAD_RESP_URL}/${empId}/${date}/denied/${taskToken}">Deny</a>?`;
         check sendEmail(leadEmail, string `Leave Request from ${
                         employees[empId]?.name.toString()} for ${date}`, body);
     }
@@ -58,7 +60,8 @@ public function processLeaveRequest(awslambda:Context ctx, LeaveRequestTask req)
 
 @awslambda:Function
 public function submitLeadResponse(awslambda:Context ctx, LeaveRequestResult result) returns json|error {
-    check stepfuncsClient->sendTaskSuccess(result.taskToken, { decision: result.decision });
+    result.taskToken = check encoding:decodeUriComponent(result.taskToken, "UTF-8");
+    check stepfuncsClient->sendTaskSuccess(result.taskToken, check json.constructFrom(result));
 }
 
 public function sendEmail(string address, string subject, string text) returns error? {
