@@ -1,0 +1,32 @@
+{
+  "Comment": "EmployeeLeaveWorkflow",
+  "StartAt": "ProcessLeaveLambda",
+  "States": {
+    "ProcessLeaveLambda": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-west-1:908363916138:function:processLeaveRequest",
+        "Payload": {
+          "req.$": "$",
+          "taskToken.$": "$$.Task.Token"
+        }
+      },
+      "Next": "ProcessLeadLeaveResponseLambda"
+    },
+    "ProcessLeadLeaveResponseLambda": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-west-1:908363916138:function:processLeadLeaveResponse",
+        "Payload": {
+          "employeeId.$": "$.employeeId",
+          "date.$": "$.date",
+          "decision.$": "$.decision",
+          "taskToken.$": "$.taskToken"
+        }
+      },
+      "End": true
+    }
+  }
+}
