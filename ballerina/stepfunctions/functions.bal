@@ -26,9 +26,6 @@ public type LeaveRequestTask record {
     string token;
 };
 
-const LEAVE_REQUEST_SM_ARN = "arn:aws:states:us-west-1:908363916138:stateMachine:EmployeeLeaveWorkflow";
-const LEAVE_LEAD_RESP_URL = "https://0uud44cwvf.execute-api.us-west-1.amazonaws.com/prod/leave_lead_response";
-
 map<Employee> employees = { 
     "E001": { name: "John Carpenter", email: "lafernando@gmail.com", leadId: "" },
     "E002": { name: "Jim O'Dell", email: "lafernando@gmail.com", leadId: "E001" },
@@ -53,8 +50,8 @@ public function processLeaveRequest(awslambda:Context ctx, LeaveRequestTask task
     string leaveLeadRespURL = system:getEnv("LEAVE_LEAD_RESP_URL");
     string? leadEmail = employees[employees[empId]?.leadId.toString()]?.email;
     if leadEmail is string {
-        string body = string `<a href="${LEAVE_LEAD_RESP_URL}/${empId}/${date}/approved/${taskToken}">Approve</a> or 
-                              <a href="${LEAVE_LEAD_RESP_URL}/${empId}/${date}/denied/${taskToken}">Deny</a>?`;
+        string body = string `<a href="${leaveLeadRespURL}/${empId}/${date}/approved/${taskToken}">Approve</a> or 
+                              <a href="${leaveLeadRespURL}/${empId}/${date}/denied/${taskToken}">Deny</a>?`;
         check sendEmail(leadEmail, string `Leave Request from ${
                         employees[empId]?.name.toString()} for ${date}`, body);
     }
