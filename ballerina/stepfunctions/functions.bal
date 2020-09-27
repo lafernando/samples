@@ -28,7 +28,7 @@ public type LeaveRequestTask record {
 const LEAVE_REQUEST_SM_ARN = "arn:aws:states:us-west-1:908363916138:stateMachine:EmployeeLeaveWorkflow";
 
 map<Employee> employees = { 
-    "E001": { name: "John Carpenter", email: "john@foo.com", leadId: "" },
+    "E001": { name: "John Carpenter", email: "lafernando@gmail.com", leadId: "" },
     "E002": { name: "Jim O'Dell", email: "jim@foo.com", leadId: "E001" },
     "E003": { name: "Jane Cook", email: "jane@foo.com", leadId: "E001" }
 };
@@ -37,21 +37,21 @@ stepfuncs:Client stepfuncsClient = new({accessKey: system:getEnv("AWS_AK"), secr
                                         system:getEnv("AWS_SK"), region: "us-west-1"});
 
 @awslambda:Function
-public function requestLeave(awslambda:Context ctx, LeaveRequest req) returns json|error {
-    json input = check json.constructFrom(req);
-    var result = check stepfuncsClient->startExecution(LEAVE_REQUEST_SM_ARN, input);
-    return json.constructFrom(result);
+public function requestLeave(awslambda:Context ctx, json req) returns json|error {
+    var result = check stepfuncsClient->startExecution(LEAVE_REQUEST_SM_ARN, req);
+    return { status: "Leave request submitted", ref: result.executionArn };
 }
 
 @awslambda:Function
 public function processLeaveRequest(awslambda:Context ctx, LeaveRequestTask req) returns error? {
     string empId = req.Input.employeeId;
+    string date = req.Input.date;
     string? leadEmail = employees[employees[empId]?.leadId.toString()]?.email;
     if leadEmail is string {
-        string body = string `<a href="https://google.com/approve_leave">Approve</a> or 
-                              <a href="https://google.com/deny_leave">Deny</a> leave?`;
+        string body = string `<a href="https://google.com/lead_leave_response/${empId}/${date}/true/${req.TaskToken}">Approve</a> or 
+                              <a href="https://google.com/lead_leave_response/${empId}/${date}/false/${req.TaskToken}">Deny</a>?`;
         check sendEmail(leadEmail, string `Leave Request from ${
-                        employees[empId]?.name.toString()}`, body);
+                        employees[empId]?.name.toString()} for ${date}`, body);
     }
 }
 
