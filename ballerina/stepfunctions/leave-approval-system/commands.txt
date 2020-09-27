@@ -1,0 +1,8 @@
+ballerina build functions.bal 
+
+aws lambda create-function --function-name processLeaveRequest --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.processLeaveRequest --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --layers arn:aws:lambda:us-west-1:141896495686:layer:ballerina:2 --memory-size 512 --timeout 10 --environment "Variables={ACCESS_KEY=$AK,SECRET_KEY=$SK,GMAIL_ACCESS_TOKEN=$GAT,GMAIL_REFRESH_TOKEN=$GRT,GMAIL_CLIENT_ID=$GCI,GMAIL_CLIENT_SECRET=$GCS}"
+
+aws lambda create-function --function-name processLeaveRequest --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.processLeaveRequest --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --layers arn:aws:lambda:us-west-1:141896495686:layer:ballerina:2 --memory-size 512 --timeout 10 --environment "Variables={GMAIL_ACCESS_TOKEN=$GAT,GMAIL_REFRESH_TOKEN=$GRT,GMAIL_CLIENT_ID=$GCI,GMAIL_CLIENT_SECRET=$GCS}"
+
+
+
