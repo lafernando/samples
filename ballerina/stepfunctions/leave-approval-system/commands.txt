@@ -1,12 +1,13 @@
 ballerina build functions.bal 
 
-aws lambda create-function --function-name requestLeave --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.requestLeave --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --layers arn:aws:lambda:us-west-1:141896495686:layer:ballerina:2 --memory-size 512 --timeout 10 --environment "Variables={AWS_AK=$AWS_AK,AWS_SK=$AWS_SK}"
+aws lambda create-function --function-name requestLeave --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.requestLeave --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --layers arn:aws:lambda:us-west-1:141896495686:layer:ballerina:2 --memory-size 512 --timeout 10
 
-aws lambda create-function --function-name processLeaveRequest --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.processLeaveRequest --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --layers arn:aws:lambda:us-west-1:141896495686:layer:ballerina:2 --memory-size 512 --timeout 10 --environment "Variables={ACCESS_KEY=$AK,SECRET_KEY=$SK,GMAIL_ACCESS_TOKEN=$GAT,GMAIL_REFRESH_TOKEN=$GRT,GMAIL_CLIENT_ID=$GCI,GMAIL_CLIENT_SECRET=$GCS}"
+aws lambda create-function --function-name processLeaveRequest --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.processLeaveRequest --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --layers arn:aws:lambda:us-west-1:141896495686:layer:ballerina:2 --memory-size 512 --timeout 10
 
-aws lambda create-function --function-name submitLeadResponse --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.submitLeadResponse --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --layers arn:aws:lambda:us-west-1:141896495686:layer:ballerina:2 --memory-size 512 --timeout 10 --environment "Variables={ACCESS_KEY=$AK,SECRET_KEY=$SK,GMAIL_ACCESS_TOKEN=$GAT,GMAIL_REFRESH_TOKEN=$GRT,GMAIL_CLIENT_ID=$GCI,GMAIL_CLIENT_SECRET=$GCS}"
+aws lambda create-function --function-name submitLeadResponse --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.submitLeadResponse --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --layers arn:aws:lambda:us-west-1:141896495686:layer:ballerina:2 --memory-size 512 --timeout 10 --environment "Variables={AWS_AK=$AWS_AK,AWS_SK=$AWS_SK}"
 
 aws lambda create-function --function-name processLeadLeaveResponse --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.processLeadLeaveResponse --runtime provided --role arn:aws:iam::908363916138:role/lambda-role --layers arn:aws:lambda:us-west-1:141896495686:layer:ballerina:2 --memory-size 512 --timeout 10 --environment "Variables={GMAIL_ACCESS_TOKEN=$GAT,GMAIL_REFRESH_TOKEN=$GRT,GMAIL_CLIENT_ID=$GCI,GMAIL_CLIENT_SECRET=$GCS}"
 
+aws lambda update-function-configuration --function-name requestLeave --environment "Variables={AWS_AK=$AWS_AK,AWS_SK=$AWS_SK,LEAVE_REQUEST_SM_ARN=$LEAVE_REQUEST_SM_ARN}"
 
-
+aws lambda update-function-configuration --function-name processLeaveRequest --environment "Variables={GMAIL_ACCESS_TOKEN=$GAT,GMAIL_REFRESH_TOKEN=$GRT,GMAIL_CLIENT_ID=$GCI,GMAIL_CLIENT_SECRET=$GCS,LEAVE_LEAD_RESP_URL=$LEAVE_LEAD_RESP_URL}"
