@@ -67,7 +67,7 @@ public function submitLeadResponse(awslambda:Context ctx, LeaveRequestResult res
 public function processLeadLeaveResponse(awslambda:Context ctx, LeaveRequestResult result) returns error? {
     string? address = employees[result.employeeId]?.email;
     if address is string {
-        check sendEmail(address, string `You leave request for ${result.date} has been ${result.decision}!`, 
+        check sendEmail(address, string `Your leave request for ${result.date} has been ${result.decision}!`, 
                         "$subject.");
     }
 }
