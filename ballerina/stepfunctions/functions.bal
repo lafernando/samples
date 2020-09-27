@@ -22,8 +22,8 @@ public type Employee record {
 };
 
 public type LeaveRequestTask record {
-    LeaveRequest Input;
-    string TaskToken;
+    LeaveRequest req;
+    string token;
 };
 
 const LEAVE_REQUEST_SM_ARN = "arn:aws:states:us-west-1:908363916138:stateMachine:EmployeeLeaveWorkflow";
@@ -45,10 +45,10 @@ public function requestLeave(awslambda:Context ctx, json req) returns json|error
 }
 
 @awslambda:Function
-public function processLeaveRequest(awslambda:Context ctx, LeaveRequestTask req) returns error? {
-    string empId = req.Input.employeeId;
-    string date = req.Input.date;
-    string taskToken = check encoding:encodeUriComponent(req.TaskToken, "UTF-8");
+public function processLeaveRequest(awslambda:Context ctx, LeaveRequestTask task) returns error? {
+    string empId = task.req.employeeId;
+    string date = task.req.date;
+    string taskToken = check encoding:encodeUriComponent(task.token, "UTF-8");
     string? leadEmail = employees[employees[empId]?.leadId.toString()]?.email;
     if leadEmail is string {
         string body = string `<a href="${LEAVE_LEAD_RESP_URL}/${empId}/${date}/approved/${taskToken}">Approve</a> or 
@@ -59,9 +59,18 @@ public function processLeaveRequest(awslambda:Context ctx, LeaveRequestTask req)
 }
 
 @awslambda:Function
-public function submitLeadResponse(awslambda:Context ctx, LeaveRequestResult result) returns json|error {
+public function submitLeadResponse(awslambda:Context ctx, LeaveRequestResult result) returns error? {
     result.taskToken = check encoding:decodeUriComponent(result.taskToken, "UTF-8");
     check stepfuncsClient->sendTaskSuccess(result.taskToken, check json.constructFrom(result));
+}
+
+@awslambda:Function
+public function processLeadLeaveResponse(awslambda:Context ctx, LeaveRequestResult result) returns error? {
+    string? address = employees[result.employeeId]?.email;
+    if address is string {
+        check sendEmail(address, string `You leave request for ${result.date} has been ${result.decision}!`, 
+                        "$subject.");
+    }
 }
 
 public function sendEmail(string address, string subject, string text) returns error? {
