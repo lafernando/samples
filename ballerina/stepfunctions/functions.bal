@@ -21,14 +21,14 @@ public type Employee record {
     string leadId;
 };
 
-public type LeaveRequestTask record {
+public type LeaveRequestProcess record {
     LeaveRequest req;
-    string token;
+    string taskToken;
 };
 
 map<Employee> employees = { 
-    "E001": { name: "John Carpenter", email: "lafernando@gmail.com", leadId: "" },
-    "E002": { name: "Jim O'Dell", email: "lafernando@gmail.com", leadId: "E001" },
+    "E001": { name: "John Carpenter", email: "john@foo.com", leadId: "" },
+    "E002": { name: "Jim O'Dell", email: "jim@foo.com", leadId: "E001" },
     "E003": { name: "Jane Cook", email: "jane@foo.com", leadId: "E001" }
 };
 
@@ -43,10 +43,10 @@ public function requestLeave(awslambda:Context ctx, json req) returns json|error
 }
 
 @awslambda:Function
-public function processLeaveRequest(awslambda:Context ctx, LeaveRequestTask task) returns error? {
-    string empId = task.req.employeeId;
-    string date = task.req.date;
-    string taskToken = check encoding:encodeUriComponent(task.token, "UTF-8");
+public function processLeaveRequest(awslambda:Context ctx, LeaveRequestProcess proc) returns error? {
+    string empId = proc.req.employeeId;
+    string date = proc.req.date;
+    string taskToken = check encoding:encodeUriComponent(proc.taskToken, "UTF-8");
     string leaveLeadRespURL = system:getEnv("LEAVE_LEAD_RESP_URL");
     string? leadEmail = employees[employees[empId]?.leadId.toString()]?.email;
     if leadEmail is string {
