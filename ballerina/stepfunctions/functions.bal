@@ -40,7 +40,8 @@ stepfuncs:Client stepfuncsClient = new({accessKey: system:getEnv("AWS_AK"), secr
 
 @awslambda:Function
 public function requestLeave(awslambda:Context ctx, json req) returns json|error {
-    var result = check stepfuncsClient->startExecution(LEAVE_REQUEST_SM_ARN, req);
+    string leaveRequestSMArn = system:getEnv("LEAVE_REQUEST_SM_ARN");
+    var result = check stepfuncsClient->startExecution(leaveRequestSMArn, req);
     return { status: "Leave request submitted", ref: result.executionArn };
 }
 
@@ -49,6 +50,7 @@ public function processLeaveRequest(awslambda:Context ctx, LeaveRequestTask task
     string empId = task.req.employeeId;
     string date = task.req.date;
     string taskToken = check encoding:encodeUriComponent(task.token, "UTF-8");
+    string leaveLeadRespURL = system:getEnv("LEAVE_LEAD_RESP_URL");
     string? leadEmail = employees[employees[empId]?.leadId.toString()]?.email;
     if leadEmail is string {
         string body = string `<a href="${LEAVE_LEAD_RESP_URL}/${empId}/${date}/approved/${taskToken}">Approve</a> or 
