@@ -39,12 +39,12 @@ function publishResults(@af:QueueTrigger { queueName: "results" } json result) r
 public function sendEmail(string jobId, string email, string text) returns @tainted [string, string]|error? {
     gmail:GmailConfiguration gmailConfig = {
         oauthClientConfig: {
-            accessToken: system:getEnv("GMAIL_ACCESS_TOKEN"),
+            accessToken: system:getEnv("GAT"),
             refreshConfig: {
                 refreshUrl: gmail:REFRESH_URL,
-                refreshToken: system:getEnv("GMAIL_REFRESH_TOKEN"),
-                clientId: system:getEnv("GMAIL_CLIENT_ID"),
-                clientSecret: system:getEnv("GMAIL_CLIENT_SECRET")
+                refreshToken: system:getEnv("GRT"),
+                clientId: system:getEnv("GCI"),
+                clientSecret: system:getEnv("GCS")
             }
         }
     };
