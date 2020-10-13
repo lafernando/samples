@@ -5,8 +5,8 @@ import ballerinax/googleapis.gmail version 0.12.0;
 
 @awslambda:Function
 public function processImage(awslambda:Context ctx, awslambda:S3Event event) returns @tainted error? {
-    amazonrekn:Client reknClient = new({accessKey: system:getEnv("ACCESS_KEY"), 
-                                        secretKey: system:getEnv("SECRET_KEY"),
+    amazonrekn:Client reknClient = new({accessKey: system:getEnv("AWS_AK"), 
+                                        secretKey: system:getEnv("AWS_SK"),
                                         region: "us-west-1"});
     foreach var entry in event.Records {
         var result = check reknClient->detectLabels({bucket: entry.s3.bucket.name, 
