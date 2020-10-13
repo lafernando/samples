@@ -51,7 +51,7 @@ public function sendEmail(string jobId, string email, string text) returns @tain
     gmail:Client gmailClient = new (gmailConfig);
     gmail:MessageRequest messageRequest = {};
     messageRequest.recipient = email;
-    messageRequest.sender = "lafernando@gmail.com";
+    messageRequest.sender = system:getEnv("EMAIL_SENDER");
     messageRequest.subject = "OCR Result for Job: " + jobId;
     messageRequest.messageBody = text;
     messageRequest.contentType = gmail:TEXT_PLAIN;
