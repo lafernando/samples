@@ -32,8 +32,8 @@ public function sendEmail(string key, string text) returns @tainted error? {
     };
     gmail:Client gmailClient = new (gmailConfig);
     gmail:MessageRequest messageRequest = {};
-    messageRequest.recipient = "lafernando@gmail.com";
-    messageRequest.sender = "lafernando@gmail.com";
+    messageRequest.recipient = system:getEnv("EMAIL");
+    messageRequest.sender = system:getEnv("EMAIL");
     messageRequest.subject = "Image Analysis for '" + key + "'";
     messageRequest.messageBody = text;
     messageRequest.contentType = gmail:TEXT_HTML;
