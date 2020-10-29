@@ -1,5 +1,6 @@
 import ballerina/grpc;
 import ballerinax/java.jdbc;
+import ballerina/http as _;
 
 type Entry record {|
     float lat;
