@@ -1,12 +1,12 @@
 import ballerina/http;
 import ballerina/system;
 import ballerina/io;
-//import ballerina/rabbitmq;
+import ballerina/rabbitmq;
 import ballerina/auth;
 
 GeoServiceBlockingClient grpcClient = new("http://localhost:8083");
-// rabbitmq:Connection mqConn = new ({host: "localhost", port: 5672});
-// rabbitmq:Channel mqChannel = new (mqConn);
+rabbitmq:Connection mqConn = new ({host: "localhost", port: 5672});
+rabbitmq:Channel mqChannel = new (mqConn);
 
 auth:InboundBasicAuthProvider basicAuthProvider = new;
 http:BasicAuthHandler basicAuthHandler = new (basicAuthProvider);
@@ -36,7 +36,7 @@ service locationService on new http:Listener(8082) {
                         select check item.formatted_address;
             address = <string> addrs[0];
             if address is string {
-                check storeLocalGRPC(lat, long, "GoogleGeoCode", address);
+                check storeLocalMQ(lat, long, "GoogleGeoCode", address);
             }
         }
         check caller->respond(<@untainted> {location: {lat, long}, address});
@@ -61,8 +61,8 @@ function storeLocalGRPC(float lat, float long, string src, string address) retur
     io:println(string `Local (grpc) lookup store: ${lat},${long}`);
 }
 
-// function storeLocalMQ(float lat, float long, string src, string address) returns @tainted error? {
-//     json payload = {lat, long, src, address, ref: system:uuid()};
-//     check mqChannel->basicPublish(payload, "geo_queue");
-//     io:println(string `Local (mq) lookup store: ${lat},${long}`);
-// }
+function storeLocalMQ(float lat, float long, string src, string address) returns @tainted error? {
+    json payload = {lat, long, src, address, ref: system:uuid()};
+    check mqChannel->basicPublish(payload.toJsonString(), "geo_queue");
+    io:println(string `Local (mq) lookup store: ${lat},${long}`);
+}
