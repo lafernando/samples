@@ -36,7 +36,7 @@ service locationService on new http:Listener(8082) {
                         select check item.formatted_address;
             address = <string> addrs[0];
             if address is string {
-                check storeLocalMQ(lat, long, "GoogleGeoCode", address);
+                check storeLocalGRPC(lat, long, "GoogleGeoCode", address);
             }
         }
         check caller->respond(<@untainted> {location: {lat, long}, address});
