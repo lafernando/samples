@@ -1,46 +1,61 @@
 import ballerina/grpc;
-import ballerinax/java.jdbc;
 
-type Entry record {|
-    float lat;
-    float long;
-    string src = "UNKNOWN";
-    string address;
-    string ref?;
-|};
+public type GeoServiceBlockingClient client object {
 
-jdbc:Client dbClient = new ({
-    url: "jdbc:mysql://localhost:3306/GEO_DB?serverTimezone=UTC",
-    username: "root",
-    password: "root"
-});
+    *grpc:AbstractClientEndpoint;
 
-listener grpc:Listener ep = new (8083);
+    private grpc:Client grpcClient;
 
-service GeoService on ep {
-
-    resource function lookup(grpc:Caller caller, LookupRequest value) returns @tainted error? {
-        var rs = check dbClient->select("SELECT address FROM GEO_ENTRY WHERE lat = ? AND lng = ?", 
-                                         record {string address;}, value.lat, value.long);
-        LookupResponse resp;                                             
-        if rs.hasNext() {
-            string address = <@untainted> <string> rs.getNext()["address"];
-            resp = { address };
-            check caller->send(resp);
-            check caller->complete();
-        } else {
-            resp = { address: "" };
-            check caller->send(resp);
-            check caller->complete();
-        }
+    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+        // initialize client endpoint.
+        self.grpcClient = new(url, config);
+        checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
-    resource function store(grpc:Caller caller, StoreRequest value) returns error? {
-        _ = check dbClient->update("INSERT INTO GEO_ENTRY (lat, lng, src, address, ref) VALUES (?,?,?,?,?)", 
-                                    value.lat, value.long, value.src, value.address, value?.ref.toString());
-        check caller->send({});
-        check caller->complete();
+
+    public remote function lookup(LookupRequest req, grpc:Headers? headers = ()) returns ([LookupResponse, grpc:Headers]|grpc:Error) {
+        
+        var payload = check self.grpcClient->blockingExecute("GeoService/lookup", req, headers);
+        grpc:Headers resHeaders = new;
+        anydata result = ();
+        [result, resHeaders] = payload;
+        
+        return [<LookupResponse>result, resHeaders];
+        
     }
-}
+
+    public remote function store(StoreRequest req, grpc:Headers? headers = ()) returns (grpc:Headers|grpc:Error) {
+        
+        var payload = check self.grpcClient->blockingExecute("GeoService/store", req, headers);
+        grpc:Headers resHeaders = new;
+        [_, resHeaders] = payload;
+        return resHeaders;
+    }
+
+};
+
+public type GeoServiceClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
+    private grpc:Client grpcClient;
+
+    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+        // initialize client endpoint.
+        self.grpcClient = new(url, config);
+        checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+    }
+
+    public remote function lookup(LookupRequest req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+        
+        return self.grpcClient->nonBlockingExecute("GeoService/lookup", req, msgListener, headers);
+    }
+
+    public remote function store(StoreRequest req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+        
+        return self.grpcClient->nonBlockingExecute("GeoService/store", req, msgListener, headers);
+    }
+
+};
 
 public type StoreRequest record {|
     float lat = 0.0;
@@ -51,16 +66,19 @@ public type StoreRequest record {|
     
 |};
 
+
 public type LookupRequest record {|
     float lat = 0.0;
     float long = 0.0;
     
 |};
 
+
 public type LookupResponse record {|
     string address = "";
     
 |};
+
 
 public type Empty record {|
     
