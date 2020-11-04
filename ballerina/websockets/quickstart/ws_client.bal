@@ -14,14 +14,16 @@ http:WebSocketClientConfiguration wsConf = {
 };
 
 public function main() returns error? {
-    http:WebSocketClient wsClient = new ("wss://localhost:8443/ws/echo", config = wsConf);
+    http:WebSocketClient wsClient = new ("wss://localhost:8443/ws/echo", 
+                                         config = wsConf);
     check wsClient->pushText("Hello!", true);
     check wsClient->close();
 }
 
 service clientService = @http:WebSocketServiceConfig {} service {
 
-    resource function onText(http:WebSocketClient conn, string text, boolean fin) {
+    resource function onText(http:WebSocketClient conn, string text, 
+                             boolean fin) {
         io:println(text);
     }
 
