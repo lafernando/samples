@@ -5,7 +5,7 @@
 eval $(minikube docker-env)
 
 @kubernetes:Deployment {
-    dockerHost: "tcp://192.168.99.103:2376", 
+    dockerHost: "tcp://192.168.99.100:2376", 
     dockerCertPath: "/home/laf/.minikube/certs"
 }
 
@@ -19,7 +19,7 @@ az aks get-credentials --resource-group connector --name k8stest1
     imagePullPolicy: "Always"
 }
 
-curl --data-binary "@input.jpeg" http://192.168.99.103:30135/process
+curl --data-binary "@input.jpeg" http://192.168.99.100:30135/process
 
 curl --data-binary "@input.jpeg" http://localhost:8080/process
 
