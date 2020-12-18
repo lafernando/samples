@@ -1,0 +1,7 @@
+syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+
+service StreamingCalcService {
+    rpc add(stream google.protobuf.LongValue) returns (google.protobuf.LongValue);
+    rpc incrementalAdd(stream google.protobuf.LongValue) returns (stream google.protobuf.LongValue);
+}
