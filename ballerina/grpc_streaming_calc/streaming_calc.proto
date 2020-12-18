@@ -2,6 +2,6 @@ syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 
 service StreamingCalcService {
-    rpc add(stream google.protobuf.Int64Value) returns (google.protobuf.Int64Value);
-    rpc incrementalAdd(stream google.protobuf.Int64Value) returns (stream google.protobuf.Int64Value);
+    rpc sum(stream google.protobuf.Int64Value) returns (google.protobuf.Int64Value);
+    rpc incrementalSum(stream google.protobuf.Int64Value) returns (stream google.protobuf.Int64Value);
 }
