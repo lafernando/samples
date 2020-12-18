@@ -4,10 +4,10 @@ import ballerina/io;
 public function main (string... args) returns error? {
     StreamingCalcServiceClient ep = new("http://localhost:9090");
     grpc:StreamingClient calcClient = check ep->sum(StreamingCalcServiceMessageListener);
-    foreach var i in 1...10 {
-        check calcClient->send(i);
-    }
-    check calcClient->complete();
+    // foreach var i in 1...10 {
+    //     check calcClient->send(i);
+    // }
+    // check calcClient->complete();
     calcClient = check ep->incrementalSum(StreamingCalcServiceMessageListener);
     foreach var i in 1...10 {
         check calcClient->send(i);
