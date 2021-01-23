@@ -35,7 +35,23 @@ service class Customer {
     resource function get address() returns string {
         return self.data.address;
     }
+}
 
+service class Shipper {
+
+    private ShipperData data;
+
+    function init(ShipperData data) {
+        self.data = data;
+    }
+
+    resource function get name() returns string {
+        return self.data.name;
+    }
+
+    resource function get phone() returns string {
+        return self.data.phone;
+    }
 }
 
 service class Order {
@@ -58,12 +74,12 @@ service class Order {
         return check loadCustomer(self.data.customerId);
     }
 
-    resource function get shipper() returns Customer|error {
-        return check loadCustomer(self.data.customerId);
+    resource function get shipper() returns Shipper|error {
+        return check loadShipper(self.data.shipperId);
     }
 }
 
-service graphql:Service /graphql on new graphql:Listener(8080) {
+service graphql:Service /query on new graphql:Listener(8080) {
 
     resource function get orders(int id) returns Order|error => loadOrder(id);
 
@@ -82,6 +98,15 @@ function loadOrder(int id) returns Order|error {
 }
 
 function loadCustomer(int id) returns Customer|error {
-    CustomerData data = {id: 3001, name: "Jack", address: "No 10, Main Street"};
+    CustomerData data = {
+        id: 3001,
+        name: "Jack",
+        address: "No 10, Main Street"
+    };
     return new Customer(data);
+}
+
+function loadShipper(int id) returns Shipper|error {
+    ShipperData data = {id: 1100, name: "UPS", phone: "4084915913"};
+    return new Shipper(data);
 }
