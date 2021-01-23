@@ -84,7 +84,7 @@ service class Order {
 
 service graphql:Service /query on new graphql:Listener(8080) {
 
-    resource function get orders(int id) returns Order|error => loadOrder(id);
+    resource function get 'order(int id) returns Order|error => loadOrder(id);
 
 }
 
