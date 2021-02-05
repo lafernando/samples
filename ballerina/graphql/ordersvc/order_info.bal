@@ -1,3 +1,6 @@
+import ballerinax/prometheus as _;
+import ballerinax/jaeger as _;
+
 import ballerina/graphql;
 import ballerinax/mysql;
 
