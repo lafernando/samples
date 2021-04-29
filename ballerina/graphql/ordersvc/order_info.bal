@@ -1,10 +1,9 @@
+import ballerina/graphql;
+import ballerinax/java.jdbc;
 import ballerinax/prometheus as _;
 import ballerinax/jaeger as _;
 
-import ballerina/graphql;
-import ballerinax/mysql;
-
-mysql:Client dbClient = check new(database = "ORDER_DB", user = "root", password = "root");
+jdbc:Client dbClient = check new("jdbc:mysql://localhost/ORDER_DB", "root", "root");
 
 type OrderData record {
     int id;
