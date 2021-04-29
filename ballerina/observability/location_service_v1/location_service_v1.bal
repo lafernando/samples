@@ -1,5 +1,7 @@
 import ballerina/os;
 import ballerina/http;
+import ballerinax/prometheus as _;
+import ballerinax/jaeger as _;
 
 service /locationService on new http:Listener(8080) {
 
