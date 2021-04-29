@@ -94,7 +94,7 @@ service graphql:Service /query on new graphql:Listener(8080) {
 function loadOrder(int id) returns Order|error {
     stream<record{}, error> rs = dbClient->query(`SELECT id, customerId, shipperId, date, notes 
                                                   FROM ORDERS WHERE id = ${id}`, OrderData);
-    var rec = check rs.next();
+    record {|record {} value;|}? rec = check rs.next();
     check rs.close();
     if !(rec is ()) { 
         return new Order(<OrderData> rec["value"]);
@@ -106,7 +106,7 @@ function loadOrder(int id) returns Order|error {
 function loadCustomer(int id) returns Customer|error {
     stream<record{}, error> rs = dbClient->query(`SELECT id, name, address
                                                   FROM CUSTOMER WHERE id = ${id}`, CustomerData);
-    var rec = check rs.next();
+    record {|record {} value;|}? rec = check rs.next();
     check rs.close();
     if !(rec is ()) { 
         return new Customer(<CustomerData> rec["value"]);
@@ -118,7 +118,7 @@ function loadCustomer(int id) returns Customer|error {
 function loadShipper(int id) returns Shipper|error {
     stream<record{}, error> rs = dbClient->query(`SELECT id, name, phone
                                                   FROM SHIPPER WHERE id = ${id}`, ShipperData);
-    var rec = check rs.next();
+    record {|record {} value;|}? rec = check rs.next();
     check rs.close();
     if !(rec is ()) { 
         return new Shipper(<ShipperData> rec["value"]);
