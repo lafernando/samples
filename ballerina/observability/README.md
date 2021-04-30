@@ -8,6 +8,9 @@ docker run -p 9090:9090 -v /home/laf/dev/samples/ballerina/observability/prometh
 docker run -p 3000:3000 grafana/grafana
 docker run -p 13133:13133 -p 16686:16686 -p 55680:55680 jaegertracing/opentelemetry-all-in-one
 
+http://localhost:3000/
+http://localhost:16686/search
+
 Grafana dashboard id: 5841
 
 docker run -p 15672:15672 -p 5672:5672 rabbitmq:3-management
