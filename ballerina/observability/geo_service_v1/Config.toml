@@ -1,0 +1,5 @@
+[ballerina.observe]
+enabled=true
+
+[ballerinax.prometheus]
+port=9798

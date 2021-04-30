@@ -12,7 +12,7 @@ docker run -p 9090:9090 -v /home/laf/dev/samples/ballerina/observability/prometh
 docker run -p 3000:3000 grafana/grafana
 docker run -p 13133:13133 -p 16686:16686 -p 55680:55680 jaegertracing/opentelemetry-all-in-one
 
-5841
+Grafana dashboard id: 5841
 
 docker run -p 15672:15672 -p 5672:5672 rabbitmq:3-management
 
@@ -21,3 +21,5 @@ ballerina run location_service_v4.bal --b7a.observability.enabled=true --b7a.obs
 var ws = new WebSocket("ws://localhost:8084/basic/ws", "xml", "my-protocol");
 ws.onmessage = function(frame) {console.log(frame.data)};
 ws.send("location");
+
+@Observable - fib(n)
