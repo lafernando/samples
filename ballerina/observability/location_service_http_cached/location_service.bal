@@ -41,9 +41,11 @@ function lookupLocal(float lat, float long) returns @tainted string|error? {
     if resp.statusCode == 404 {
         io:println(string `Local lookup miss: ${lat},${long}`);
         return ();
-    } else {
+    } else if resp.statusCode == 200 {
         io:println(string `Local lookup hit: ${lat},${long}`);
         return check resp.getTextPayload();
+    } else {
+        return error(check resp.getTextPayload());
     }
 }
 
