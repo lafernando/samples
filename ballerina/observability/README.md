@@ -12,6 +12,6 @@ Grafana dashboard id: 5841
 
 docker run -p 15672:15672 -p 5672:5672 rabbitmq:3-management
 
-var ws = new WebSocket("ws://localhost:8084/basic/ws", "xml", "my-protocol");
+var ws = new WebSocket("ws://localhost:8084/mylocation", "xml");
 ws.onmessage = function(frame) {console.log(frame.data)};
 ws.send("location");
