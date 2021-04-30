@@ -1,0 +1,15 @@
+[project]
+org-name= "laf"
+version= "0.1.0"
+
+[build-options]
+observability-included=true
+
+[dependencies]
+
+[platform]
+target = "java8"
+
+[[platform.libraries]]
+path = "mysql-connector-java-8.0.18.jar"
+modules = ["geo_service", "geo_service_grpc", "geo_service_rabbitmq"]
