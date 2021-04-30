@@ -1,9 +1,8 @@
-location_service: bal run
+* location_service_http: bal run
 
-geo_service_mem: bal run
-location_service_cached: bal run
-
-geo_service_db: bal run
+* location_service_http_cached: bal run
+  - geo_service_http_mem: bal run
+  - geo_service_http_db: bal run
 
 docker run -p 9090:9090 -v /home/laf/dev/samples/ballerina/observability/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
 docker run -p 3000:3000 grafana/grafana
