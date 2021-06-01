@@ -10,7 +10,7 @@ service /locationService on new http:Listener(8080) {
 
     // https://developers.google.com/maps/documentation/geolocation/overview
     // https://developers.google.com/maps/documentation/geocoding/overview
-    resource function get mylocation() returns json|error? {
+    resource function get mylocation(http:Request request) returns json|error? {
         http:Client glClient = check new("https://www.googleapis.com");
         http:Client gcClient = check new("https://maps.googleapis.com");
         string apiKey = os:getEnv("GC_KEY");
