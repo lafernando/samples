@@ -19,3 +19,13 @@ var ws = new WebSocket("ws://localhost:8084/mylocation", "xml");
 //ws.onmessage = function(frame) {console.log(frame.data)};
 ws.onmessage = function(frame) {alert(frame.data)};
 ws.send("location");
+
+[ballerina.observe]
+enabled=true
+
+import ballerinax/prometheus as _;
+import ballerinax/jaeger as _;
+
+https://central.ballerina.io/ballerinax/choreo
+
+import ballerinax/choreo as _;

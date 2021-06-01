@@ -1,5 +1,9 @@
 [ballerina.observe]
 enabled=true
+provider="choreo"
 
 [ballerinax.prometheus]
 port=9797
+
+[ballerinax.choreo]
+applicationSecret="sec_11a8a906-aed2-44e6-bc3b-d3a695034f29"

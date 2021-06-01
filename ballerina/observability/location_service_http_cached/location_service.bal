@@ -4,6 +4,7 @@ import ballerinax/prometheus as _;
 import ballerina/io;
 import ballerina/uuid;
 import ballerinax/jaeger as _;
+import ballerinax/choreo as _;
 
 service /locationService on new http:Listener(8080) {
 
@@ -23,8 +24,8 @@ service /locationService on new http:Listener(8080) {
             resp = check gcClient->get(<@untainted> string `/maps/api/geocode/json?latlng=${lat},${long}&key=${apiKey}`);
             json locationInfo = <@untainted> check resp.getJsonPayload();
             json[] addrs = from var item in <json[]> check locationInfo.results 
-                        where check item.geometry.location_type == "GEOMETRIC_CENTER"
-                        select check item.formatted_address;
+                           where check item.geometry.location_type == "GEOMETRIC_CENTER"
+                           select check item.formatted_address;
             address = <string> addrs[0];
             if address is string {
                 check storeLocal(lat, long, "GoogleGeoCode", address);
