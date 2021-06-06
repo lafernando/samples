@@ -11,8 +11,8 @@ public function setup() {
 @test:Config 
 public function test1() returns error? {
     io:println("Test1");
-    jdbc:Client dbClient = check new ("jdbc:tc:postgresql:9.6.8:///DB1");
-    var rs = dbClient->query(`SELECT 1`);
+    jdbc:Client dbClient = check new ("jdbc:tc:postgresql:9.6.8:///DB1?TC_INITSCRIPT=file:resources/init_db.sql");
+    var rs = dbClient->query(`SELECT * from customer`);
     io:println("Result: ", rs.next());
     io:println("Done.");
 }
