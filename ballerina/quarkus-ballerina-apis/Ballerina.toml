@@ -1,0 +1,17 @@
+[build-options]
+observabilityIncluded = true
+
+[[platform.java11.dependency]]
+groupId = "org.postgresql"
+artifactId = "postgresql"
+version = "42.2.20"
+
+[[platform.java11.dependency]]
+groupId = "org.testcontainers"
+artifactId = "postgresql"
+version = "1.15.3"
+
+[[platform.java11.dependency]]
+groupId = "org.testcontainers"
+artifactId = "testcontainers"
+version = "1.15.3"
