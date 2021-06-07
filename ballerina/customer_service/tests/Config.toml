@@ -1,0 +1,5 @@
+DB_URL="jdbc:tc:postgresql:9.6.8:///DB1?TC_INITSCRIPT=file:resources/init_db.sql"
+DB_USER="user1"
+DB_PASSWORD="pass1"
+
+SERVICE_PORT=8080

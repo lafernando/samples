@@ -1,0 +1,5 @@
+DB_URL="jdbc:postgresql://localhost/DB1"
+DB_USER="user1"
+DB_PASSWORD="pass1"
+
+SERVICE_PORT=80
