@@ -19,15 +19,15 @@ jdbc:Client dbClient = check new (DB_URL, DB_USER, DB_PASSWORD);
 
 public function findAllCustomers() returns Customer[]|error {
     Customer[] customers = [];
-    stream<Customer, sql:Error> rs = <stream<Customer, sql:Error>> dbClient->query(`SELECT * from customer`, Customer);
-    error e = rs.forEach(function (Customer customer) {
+    stream<Customer, sql:Error?> rs = <stream<Customer, sql:Error>> dbClient->query(`SELECT * from customer`, Customer);
+    check rs.forEach(function (Customer customer) {
         customers.push(customer);
     });
     return customers;
 }
 
 public function findCustomerById(int customerId) returns Customer?|error {
-    stream<Customer, sql:Error> rs = <stream<Customer, sql:Error>> dbClient->query(
+    stream<Customer, sql:Error?> rs = <stream<Customer, sql:Error>> dbClient->query(
                                      `SELECT * from customer where customer_id = ${customerId}`, Customer);
     record {|record {} value;|}? result = check rs.next();
     if result is record {|record {} value;|} {
@@ -49,3 +49,4 @@ public function updateCustomer(Customer customer) returns error? {
             middle_name = ${customer?.middle_name}, last_name = ${customer.last_name}, suffix = ${customer?.suffix},
             email = ${customer?.email}, phone = ${customer?.phone} WHERE customer_id = ${customer.customer_id}`);
 }
+
