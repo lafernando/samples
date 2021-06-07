@@ -3,7 +3,7 @@ import ballerina/http;
 import ballerina/uuid;
 import laf/testcontainers as tc;
 
-http:Client customerSvc = check new("http://localhost:8080/api/customers");
+http:Client customerSvc = check new(string `http://localhost:${SERVICE_PORT}/api/customers`);
 
 @test:BeforeSuite
 public function setup() {
@@ -61,3 +61,4 @@ function createCustomer() returns Customer|error {
     };
     return customer;
 }
+
