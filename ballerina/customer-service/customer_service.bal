@@ -17,8 +17,17 @@ service /api/customers on new http:Listener(SERVICE_PORT) {
         return customer;
     }
 
-    resource function put . (@http:Payload Customer customer) returns error? {
-
+    resource function put . (@http:Payload Customer customer) returns Customer|error? {
+        transaction {
+            if (check findCustomerById(customer.customer_id) is ()) {
+                rollback;
+                return error(string `No Customer found for customerId[${customer.customer_id}]`);
+            } else {
+                check updateCustomer(customer);
+                check commit;
+            }
+        }
+        return customer;
     }
 
 }
