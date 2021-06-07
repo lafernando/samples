@@ -29,7 +29,6 @@ public function findCustomerById(int customerId) returns Customer?|error {
     stream<Customer, sql:Error> rs = <stream<Customer, sql:Error>> dbClient->query(
                                      `SELECT * from customer where customer_id = ${customerId}`, Customer);
     record {|record {} value;|}? result = check rs.next();
-
     if result is record {|record {} value;|} {
         return <Customer> result.value;
     } else {
@@ -38,7 +37,10 @@ public function findCustomerById(int customerId) returns Customer?|error {
 }
 
 public function saveCustomer(Customer customer) returns error? {
-
+    var result = check dbClient->execute(`INSERT INTO customer (first_name, middle_name, last_name, suffix, email, 
+        phone) VALUES (${customer.first_name}, ${customer.middle_name}, ${customer.last_name}, 
+        ${customer.suffix}, ${customer.email}, ${customer.phone})`);
+    customer.customer_id = <int> result.lastInsertId;
 }
 
 public function update(Customer customer) returns error? {

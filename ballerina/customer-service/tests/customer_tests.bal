@@ -18,10 +18,17 @@ public function findAllCustomersTest() returns error? {
 
 @test:Config 
 public function findCustomerByIdTest() returns error? {
-    Customer entry = check customerSvc->get("/1/");
+    Customer entry = check customerSvc->get("/1");
     test:assertEquals(entry.first_name, "John");
-    entry = check customerSvc->get("/2/");
+    entry = check customerSvc->get("/2");
     test:assertEquals(entry.first_name, "Jane");
+}
+
+@test:Config 
+public function saveCustomerTest() returns error? {
+    Customer entry = check createCustomer();
+    entry = check customerSvc->post("/", check entry.cloneWithType(json));
+    test:assertTrue(entry.customer_id > 0);
 }
 
 function customerEquals(Customer lhs, Customer rhs) returns boolean {

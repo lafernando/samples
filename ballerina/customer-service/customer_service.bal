@@ -12,8 +12,9 @@ service /api/customers on new http:Listener(SERVICE_PORT) {
         return findCustomerById(customerId);
     }
 
-    resource function post . (@http:Payload Customer customer) returns error? {
-
+    resource function post . (@http:Payload Customer customer) returns Customer|error? {
+        check saveCustomer(customer);
+        return customer;
     }
 
     resource function put . (@http:Payload Customer customer) returns error? {
