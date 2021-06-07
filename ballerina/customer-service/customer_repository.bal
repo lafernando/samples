@@ -25,8 +25,16 @@ public function findAllCustomers() returns Customer[]|error {
     return customers;
 }
 
-public function findCustomeById(int customerId) returns Customer?|error {
-    return ();
+public function findCustomerById(int customerId) returns Customer?|error {
+    stream<Customer, sql:Error> rs = <stream<Customer, sql:Error>> dbClient->query(
+                                     `SELECT * from customer where customer_id = ${customerId}`, Customer);
+    record {|record {} value;|}? result = check rs.next();
+
+    if result is record {|record {} value;|} {
+        return <Customer> result.value;
+    } else {
+        return ();
+    }
 }
 
 public function saveCustomer(Customer customer) returns error? {

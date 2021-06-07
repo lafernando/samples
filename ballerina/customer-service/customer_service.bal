@@ -1,13 +1,15 @@
 import ballerina/http;
-service /api/customers on new http:Listener(8080) {
+
+configurable int SERVICE_PORT = ?;
+
+service /api/customers on new http:Listener(SERVICE_PORT) {
 
     resource function get . () returns Customer[]|error {
-        Customer[] customers = [];
-        return customers;
+        return findAllCustomers();
     }
 
     resource function get [int customerId]() returns Customer?|error {
-        return ();
+        return findCustomerById(customerId);
     }
 
     resource function post . (@http:Payload Customer customer) returns error? {
