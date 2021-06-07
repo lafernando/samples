@@ -1,3 +1,6 @@
+import ballerinax/java.jdbc;
+import ballerina/sql;
+
 public type Customer record {
     int customer_id;
     string first_name;
@@ -8,8 +11,17 @@ public type Customer record {
     string phone;
 };
 
+configurable string DB_URL = ?;
+configurable string DB_USER = ?;
+configurable string DB_PASSWORD = ?;
+
+jdbc:Client dbClient = check new (DB_URL, DB_USER, DB_PASSWORD);
 public function findAllCustomers() returns Customer[]|error {
     Customer[] customers = [];
+    stream<Customer, sql:Error> rs = <stream<Customer, sql:Error>> dbClient->query(`SELECT * from customer`, Customer);
+    error e = rs.forEach(function (Customer customer) {
+        customers.push(customer);
+    });
     return customers;
 }
 

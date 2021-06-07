@@ -9,3 +9,4 @@ CREATE TABLE customer (
 );
 
 insert into customer (first_name, middle_name, last_name, suffix, email, phone) values ('John', 'J', 'Doe', 'Jr.', 'john@doe.com', '4081131195');
+insert into customer (first_name, middle_name, last_name, suffix, email, phone) values ('Jane', 'J', 'Doe', 'Sr.', 'jane@doe.com', '4081131196');
