@@ -1,0 +1,24 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+message StoreRequest {
+  double lat = 1;
+  double long = 2;
+  string src = 3;
+  string address = 4;
+  string ref = 5;
+}
+
+message LookupRequest {
+  double lat = 1;
+  double long = 2;
+}
+
+message LookupResponse {
+  string address = 1;
+}
+
+service GeoService {
+  rpc lookup(LookupRequest) returns (LookupResponse);
+  rpc store(StoreRequest) returns (google.protobuf.Empty);
+}

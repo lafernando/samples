@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+message Person {
+  string id = 1;
+  string name = 2;
+  int32 birthYear = 3;
+}
+
+message GetPersonRequest {
+  string id = 1;
+}
+
+message AddPersonResponse {
+  string id = 1;
+}
+
+message AddRequest {
+  repeated int64 numbers = 1;
+}
+
+message AddResponse {
+  int64 result = 1;
+}
+
+message MultiplyRequest {
+  int64 v1 = 1;
+  int64 v2 = 2;
+}
+
+message MultiplyResponse {
+  int64 result = 1;
+}
+
+service AdminService {
+  rpc add(AddRequest) returns (AddResponse);
+  rpc multiply(MultiplyRequest) returns (MultiplyResponse);
+  rpc addPerson(Person) returns (AddPersonResponse);
+  rpc getPerson(GetPersonRequest) returns (Person);
+}
