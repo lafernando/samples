@@ -1,1 +1,1 @@
-# Code Samples
+Programming code samples and scenario implementations.
