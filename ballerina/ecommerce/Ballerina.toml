@@ -1,10 +1,12 @@
-[project]
-org-name= "laf"
-version= "0.1.0"
+[package]
+org = "laf"
+name = "ecommerce"
+version = "0.1.0"
 
-[platform]
-target = "java8"
+[build-options]
+observabilityIncluded = true
 
-[[platform.libraries]]
-path = "mysql-connector-java-8.0.18.jar"
-modules = ["cart", "inventory"]
+[[platform.java11.dependency]]
+groupId = "mysql"
+artifactId = "mysql-connector-java"
+version = "8.0.23"
