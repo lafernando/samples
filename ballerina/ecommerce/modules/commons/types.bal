@@ -15,3 +15,8 @@ public type Payment record {
 public type Delivery record {
     string orderId;
 };
+
+public type Inventory record {
+    int id;
+    string description;
+};

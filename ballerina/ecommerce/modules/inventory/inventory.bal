@@ -1,24 +1,20 @@
 import ballerina/http;
-import ballerinax/java.jdbc;
-import ballerina/jsonutils;
+import ballerinax/mysql;
+import ecommerce.commons as x;
 
-jdbc:Client dbClient = new ({
-    url: "jdbc:mysql://localhost:3306/ECOM_DB?serverTimezone=UTC",
-    username: "root",
-    password: "root"
-});
+mysql:Client dbClient = check new(database = "ECOM_DB?serverTimezone=UTC", user = "root", password = "root");
 
-service Inventory on new http:Listener(8084) {
+service /Inventory on new http:Listener(8084) {
 
-    @http:ResourceConfig {
-        path: "/search/{query}",
-        methods: ["GET"]
-    }
-    resource function search(http:Caller caller, http:Request request, 
-                             string query) returns @tainted error? {
-        var rs = check dbClient->select("SELECT id, description FROM ECOM_INVENTORY WHERE description LIKE '%" + 
-                                        <@untainted> query + "%'", ());
-        check caller->respond(jsonutils:fromTable(rs));
+    resource function get search/[string query]() returns json|error? {
+        stream<x:Inventory, error> rs = dbClient->query(`SELECT id, description FROM ECOM_INVENTORY WHERE description LIKE '%${query} + %'`, x:Inventory);
+        record {|record {} value;|}? rec = check rs.next();
+        json[] result = [];
+        error e = rs.forEach(function(x:Inventory item) {
+            result.push(checkpanic item.cloneWithType(json));
+        });
+        check rs.close();
+        return result;
     }
 
 }
