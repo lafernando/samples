@@ -1,47 +1,29 @@
 import ballerina/http;
-import laf/commons as x;
-import ballerinax/java.jdbc;
-import ballerina/jsonutils;
+import ballerinax/mysql;
+import ecommerce.commons as x;
 
-jdbc:Client dbClient = new ({
-    url: "jdbc:mysql://localhost:3306/ECOM_DB?serverTimezone=UTC",
-    username: "root",
-    password: "root"
-});
+mysql:Client dbClient = check new(database = "ECOM_DB?serverTimezone=UTC", user = "root", password = "root");
 
-service ShoppingCart on new http:Listener(8080) {
+service /ShoppingCart on new http:Listener(8080) {
 
-    @http:ResourceConfig {
-        path: "/items/{accountId}",
-        body: "item",
-        methods: ["POST"]
-    }
-    resource function addItem(http:Caller caller, http:Request request, 
-                              int accountId, x:Item item) returns error? {
-        _ = check dbClient->update("INSERT INTO ECOM_ITEM (inventory_id, account_id, quantity) VALUES (?,?,?)", 
-                                   item.invId, accountId, item.quantity);
-        check caller->ok();
+    resource function post items/[int accountId](@http:Payload x:Item item) returns error? {
+        _ = check dbClient->execute(`INSERT INTO ECOM_ITEM (inventory_id, account_id, quantity) VALUES (
+                                     ${item.invId},${accountId},${item.quantity})`);
     }
 
-    @http:ResourceConfig {
-        path: "/items/{accountId}",
-        methods: ["GET"]
-    }
-    resource function getItems(http:Caller caller, http:Request request, 
-                               string accountId) returns @tainted error? {
-        var rs = check dbClient->select("SELECT inventory_id as invId, quantity FROM ECOM_ITEM WHERE account_id = ?", 
-                                        x:Item, accountId);
-        check caller->ok(jsonutils:fromTable(rs));
+    resource function get items/[int accountId]() returns json|error? {
+        stream<x:Item, error> rs = dbClient->query(`SELECT inventory_id as invId, quantity FROM ECOM_ITEM WHERE account_id = ${accountId}`, x:Item);
+        record {|record {} value;|}? rec = check rs.next();
+        json[] result = [];
+        error e = rs.forEach(function(x:Item item) {
+            result.push(checkpanic item.cloneWithType(json));
+        });
+        check rs.close();
+        return result;
     }
 
-    @http:ResourceConfig {
-        path: "/items/{accountId}",
-        methods: ["DELETE"]
-    }
-    resource function clearItems(http:Caller caller, http:Request request, 
-                                 string accountId) returns error? {
-        _ = check dbClient->update("DELETE FROM ECOM_ITEM WHERE account_id = ?", accountId);
-        check caller->ok();
+    resource function delete items/[int accountId]() returns error? {
+        _ = check dbClient->execute(`DELETE FROM ECOM_ITEM WHERE account_id = ${accountId}`);
     }
 
 }
