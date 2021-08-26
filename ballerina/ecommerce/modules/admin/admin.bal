@@ -12,18 +12,16 @@ type ItemArray x:Item[];
 
 service /admin on new http:Listener(8085) {
 
-    resource function get invsearch/[string query](http:Caller caller, http:Request request) returns error? {
+    resource function get invsearch/[string query]() returns error? {
         http:Response resp = check invClient->get("/search/" + check url:encode(query, "UTF-8"));
-        check caller->respond(resp);
     }
 
-    resource function post cartitems/[int accountId](http:Caller caller, http:Request request, 
-                                      @http:Payload x:Item item) returns error? {
-        http:Response resp = check cartClient->post("/items/" + accountId.toString(), check item.cloneWithType(json));
-        check caller->respond(resp);
+    resource function post cartitems/[int accountId](@http:Payload x:Item item) returns json|error? {
+        json resp = check cartClient->post("/items/" + accountId.toString(), check item.cloneWithType(json));
+        return resp;
     }
 
-    resource function get checkout/[int accountId](http:Caller caller, http:Request request) returns error? {
+    resource function get checkout/[int accountId]() returns http:Response|json|error? {
         http:Response resp = check cartClient->get("/items/" + accountId.toString());
         json payload = check resp.getJsonPayload();
         x:Item[] items = check payload.cloneWithType(ItemArray);
@@ -31,8 +29,7 @@ service /admin on new http:Listener(8085) {
             http:Response respx = new;
             respx.statusCode = 400;
             respx.setTextPayload("Empty cart");
-            check caller->respond(respx);
-            return;
+            return respx;
         }
         x:Order orderx = { accountId, items };
         resp = check orderMgtClient->post("/order", check orderx.cloneWithType(json));
@@ -44,8 +41,8 @@ service /admin on new http:Listener(8085) {
         resp = check shippingClient->post("/delivery", check delivery.cloneWithType(json));
         string trackingNumber = check resp.getTextPayload();
         () x = check cartClient->delete("/items/" + accountId.toString());
-        check caller->respond({ accountId: accountId, orderId: orderId, receiptNumber: receiptNumber, 
-                                trackingNumber: trackingNumber });
+        return { accountId: accountId, orderId: orderId, receiptNumber: receiptNumber, 
+                                trackingNumber: trackingNumber };
     }
 
 }
