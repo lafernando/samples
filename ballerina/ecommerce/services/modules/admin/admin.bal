@@ -12,8 +12,9 @@ type ItemArray x:Item[];
 
 service /admin on new http:Listener(8085) {
 
-    resource function get invsearch/[string query]() returns error? {
-        http:Response resp = check invClient->get("/search/" + check url:encode(query, "UTF-8"));
+    resource function get invsearch/[string query]() returns json|error? {
+        json resp = check invClient->get("/search/" + check url:encode(query, "UTF-8"));
+        return resp;
     }
 
     resource function post cartitems/[int accountId](@http:Payload x:Item item) returns json|error? {

@@ -1,11 +1,15 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/lang.runtime;
-import ecommerce.commons as x;
+
+public type Item record {
+    int invId;
+    int quantity;
+};
 
 http:Client adminClient = check new("http://localhost:8085/Admin");
 
-public function main(decimal interval, int count) returns @tainted error? {
+public function main(decimal interval, int count) returns error? {
     foreach var i in 1...count {
         check doSession(i % 2 + 1, i % 10 == 0, i % 30 == 0);
         runtime:sleep(interval);
@@ -21,8 +25,8 @@ public function doSession(int accountId, boolean doError1, boolean doError2) ret
     rsx = check resp.getJsonPayload();
     entries = <json[]> rsx;
     int id2 = <int> check entries[0].id;
-    x:Item item1 = { invId: id1, quantity: 5 };
-    x:Item item2 = { invId: id2, quantity: 10 };
+    Item item1 = { invId: id1, quantity: 5 };
+    Item item2 = { invId: id2, quantity: 10 };
     () x = check adminClient->post("/cartitems/" + accountId.toString(), check item1.cloneWithType(json));
     () y = check adminClient->post("/cartitems/" + accountId.toString(), check item2.cloneWithType(json));
     if doError1 {

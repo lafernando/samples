@@ -13,7 +13,6 @@ service /ShoppingCart on new http:Listener(8080) {
 
     resource function get items/[int accountId]() returns json|error? {
         stream<x:Item, error> rs = dbClient->query(`SELECT inventory_id as invId, quantity FROM ECOM_ITEM WHERE account_id = ${accountId}`, x:Item);
-        record {|record {} value;|}? rec = check rs.next();
         json[] result = [];
         error e = rs.forEach(function(x:Item item) {
             result.push(checkpanic item.cloneWithType(json));
