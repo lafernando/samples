@@ -1,5 +1,7 @@
 import ballerina/http;
 import ballerina/lang.runtime;
+import ballerina/observe;
+import ballerinax/choreo as _;
 
 public type Item record {
     int invId;
@@ -15,6 +17,7 @@ public function main(decimal interval, int count) returns error? {
     }
 }
 
+@observe:Observable
 public function doSession(int accountId, boolean doError1, boolean doError2) returns error? {
     http:Response resp = check adminClient->get("/invsearch/mango");
     json rsx = check resp.getJsonPayload();
