@@ -2,6 +2,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/uuid;
 import ecommerce.commons as x;
+import ballerinax/choreo as _;
 
 map<x:Order> orderMap = {};
 

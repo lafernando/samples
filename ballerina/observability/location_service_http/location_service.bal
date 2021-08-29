@@ -1,7 +1,5 @@
 import ballerina/os;
 import ballerina/http;
-import ballerinax/prometheus as _;
-import ballerinax/jaeger as _;
 import ballerinax/choreo as _;
 
 service /locationService on new http:Listener(8080) {
@@ -13,7 +11,7 @@ service /locationService on new http:Listener(8080) {
         http:Client gcClient = check new("https://maps.googleapis.com");
         string apiKey = os:getEnv("GC_KEY");
         json payload = { considerIp: true };
-        var resp = check glClient->post(string `/geolocation/v1/geolocate?key=${apiKey}`, payload);
+        http:Response resp = check glClient->post(string `/geolocation/v1/geolocate?key=${apiKey}`, payload);
         json jr = <@untainted> check resp.getJsonPayload();
         float lat = <float> check jr.location.lat;
         float long = <float> check jr.location.lng;

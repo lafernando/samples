@@ -1,6 +1,7 @@
 import ballerina/http;
 import ballerina/url;
 import ecommerce.commons as x;
+import ballerinax/choreo as _;
 
 http:Client cartClient = check new("http://localhost:8080/ShoppingCart");
 http:Client orderMgtClient = check new("http://localhost:8081/OrderMgt");

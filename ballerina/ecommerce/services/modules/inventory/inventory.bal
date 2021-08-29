@@ -1,6 +1,7 @@
 import ballerina/http;
 import ballerinax/mysql;
 import ecommerce.commons as x;
+import ballerinax/choreo as _;
 
 mysql:Client dbClient = check new(database = "ECOM_DB?serverTimezone=UTC", user = "root", password = "root");
 

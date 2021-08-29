@@ -2,6 +2,7 @@ import ballerina/http;
 import ballerina/uuid;
 import ballerina/log;
 import ecommerce.commons as x;
+import ballerinax/choreo as _;
 
 http:Client orderMgtClient = check new("http://localhost:8081/OrderMgt");
 
