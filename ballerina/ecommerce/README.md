@@ -11,5 +11,5 @@ bal run target/bin/ecommerce.jar
 ### Run Simulator
 ```bash
 # bal run simulator.bal -- [interval milliseconds] [count]
-bal run simulator.bal -- 1000 1000
+bal run simulator.bal -- 100 1000
 ```
