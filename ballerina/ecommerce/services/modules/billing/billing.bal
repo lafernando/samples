@@ -5,7 +5,7 @@ import ecommerce.commons as x;
 
 http:Client orderMgtClient = check new("http://localhost:8081/OrderMgt");
 
-service /billing on new http:Listener(8082) {
+service /Billing on new http:Listener(8082) {
 
     resource function post payment(@http:Payload x:Payment payment) returns string|error? {
         http:Response resp = check orderMgtClient->get("/order/" + <@untainted> payment.orderId);
