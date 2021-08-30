@@ -19,13 +19,9 @@ public function main(decimal interval, int count) returns error? {
 
 @observe:Observable
 public function doSession(int accountId, boolean doError1, boolean doError2) returns error? {
-    http:Response resp = check adminClient->get("/invsearch/mango");
-    json rsx = check resp.getJsonPayload();
-    json[] entries = <json[]> rsx;
+    json[] entries = check adminClient->get("/invsearch/mango");
     int id1 = <int> check entries[0].id;
-    resp = check adminClient->get("/invsearch/water");
-    rsx = check resp.getJsonPayload();
-    entries = <json[]> rsx;
+    entries = check adminClient->get("/invsearch/water");
     int id2 = <int> check entries[0].id;
     Item item1 = { invId: id1, quantity: 5 };
     Item item2 = { invId: id2, quantity: 10 };
@@ -35,9 +31,9 @@ public function doSession(int accountId, boolean doError1, boolean doError2) ret
         // try to add the same item again
         _ = check adminClient->post("/cartitems/" + accountId.toString(), check item2.cloneWithType(json), targetType = http:Response);
     }
-    resp = check adminClient->get("/checkout/" + accountId.toString());
+    _ = check adminClient->get("/checkout/" + accountId.toString(), targetType = http:Response);
     if doError2 {
         // try to checkout an empty cart
-        resp = check adminClient->get("/checkout/" + accountId.toString());
+        _ = check adminClient->get("/checkout/" + accountId.toString(), targetType = http:Response);
     }
 }

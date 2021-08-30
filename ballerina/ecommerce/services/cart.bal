@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerinax/choreo as _;
 
 service /ShoppingCart on new http:Listener(8080) {
 
