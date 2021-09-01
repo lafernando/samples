@@ -1,15 +1,17 @@
 ## Ballerina - Ecommerce Sample
 
-### Populated DB, build services and run
+### Populated DB, build services, and run
 ```bash
 cd services
 mysql -u user -p < db.sql
-ballerina build
+bal build
 bal run target/bin/ecommerce.jar
 ```
 
-### Run Simulator
+### Build and run simulator
 ```bash
-# bal run simulator.bal -- [interval milliseconds] [count]
-bal run simulator.bal -- 100 1000
+cd simulator
+bal build
+# bal run target/bin/simulator.jar -- [interval milliseconds] [iterations]
+bal run target/bin/simulator.jar -- 100 1000
 ```
