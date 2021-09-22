@@ -48,7 +48,7 @@ service /registry on new http:Listener(8080) {
         _ = students.removeIfHasKey(id);
     }
 
-    isolated function respond(http:Caller caller, string msg, int sc) returns error? {
+    function respond(http:Caller caller, string msg, int sc) returns error? {
         http:Response resp = new;
         resp.statusCode = sc;
         resp.setTextPayload(msg);
