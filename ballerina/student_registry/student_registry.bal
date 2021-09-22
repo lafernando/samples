@@ -50,7 +50,7 @@ service /registry on new http:Listener(8080) {
         lock {
             _ = students.removeIfHasKey(id);
         }
-        return <http:Ok> {};
+        return {};
     }
 
 }
