@@ -35,7 +35,7 @@ service /registry on new http:Listener(8080) {
 
     resource function put .(http:Caller caller, @http:Payload Student student) returns error? {
         if !students.hasKey(student.id) {
-            check self.respond(caller, "Student with the given id does not exist", 400);
+            check self.respond(caller, "Student with the given id does not exist", 404);
             return;
         } else {
             students[student.id] = student;
